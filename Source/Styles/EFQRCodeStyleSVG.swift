@@ -301,7 +301,8 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                 let rotate = extractRotate(from: transformx)
                 print("transform: \(transformx)\nrotate: \(rotate)")
                 
-                let normalizedSize = width * sqrt(2)
+                let (rw, rh) = rotatedBoundingBox(width: width, height: height, angleDegrees: rotate)
+                let normalizedSize = max(rw, rh)
                 let scale = actualDrawingSize / normalizedSize
                 let halfW = width / 2.0
                 let halfH = height / 2.0
