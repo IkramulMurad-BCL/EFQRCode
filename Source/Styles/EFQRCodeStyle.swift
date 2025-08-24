@@ -551,6 +551,9 @@ public enum EFQRCodeStyle {
     case randomRectangle(params: EFStyleRandomRectangleParams)
     /// Resample image QR code style.
     case resampleImage(params: EFStyleResampleImageParams)
+    /// Custom dots and eyes svg
+    case svg(params: EFStyleSVGParams)
+
     /// The implementation of the QR code style.
     var implementation: EFQRCodeStyleBase {
         switch self {
@@ -574,6 +577,8 @@ public enum EFQRCodeStyle {
             return EFQRCodeStyleRandomRectangle(params: params)
         case .resampleImage(let params):
             return EFQRCodeStyleResampleImage(params: params)
+        case .svg(params: let params):
+            return EFQRCodeStyleSVG(params: params)
         }
     }
 }

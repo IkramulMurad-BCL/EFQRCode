@@ -142,6 +142,10 @@
 		4CF626F91BA7CB3E0011A099 /* EFQRCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CF626EF1BA7CB3E0011A099 /* EFQRCode.framework */; };
 		4CF627141BA7CC240011A099 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C256A501B096C2C0065714F /* Tests.swift */; };
 		8035DB621BAB492500466CB3 /* EFQRCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8111E3319A95C8B0040E7D1 /* EFQRCode.framework */; };
+		95C988272E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
+		95C988282E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
+		95C988292E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
+		95C9882A2E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
 		F829C6B81A7A94F100A2CD59 /* EFQRCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DD67C0B1A5C55C900ED2280 /* EFQRCode.framework */; };
 /* End PBXBuildFile section */
 
@@ -210,6 +214,7 @@
 		4DD67C0B1A5C55C900ED2280 /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5282BCAD1FF38F8100DFB36B /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		72998D721BF26173006D3F69 /* Info-tvOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-tvOS.plist"; sourceTree = "<group>"; };
+		95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EFQRCodeStyleSVG.swift; sourceTree = "<group>"; };
 		D2483C94256E14C0005899D8 /* QRCodeSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QRCodeSwift.framework; path = ../swift_qrcodejs/Carthage/Build/watchOS/QRCodeSwift.framework; sourceTree = "<group>"; };
 		F8111E3319A95C8B0040E7D1 /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8111E3719A95C8B0040E7D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -320,6 +325,7 @@
 				128013AA2A52CBEF0033B45B /* EFQRCodeStyleRandomRectangle.swift */,
 				128013CD2A540A090033B45B /* EFQRCodeStyleResampleImage.swift */,
 				128013AF2A52E6640033B45B /* EFQRCodeStyle25D.swift */,
+				95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */,
 			);
 			path = Styles;
 			sourceTree = "<group>";
@@ -744,6 +750,7 @@
 				128013B72A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CCA2A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E72CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
+				95C9882A2E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
 				12297FAC2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013C12A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D152A5D558400EE18B1 /* EFQRCode.swift in Sources */,
@@ -788,6 +795,7 @@
 				128013B62A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CC92A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E62CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
+				95C988282E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
 				12297FAB2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013C02A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D142A5D558400EE18B1 /* EFQRCode.swift in Sources */,
@@ -824,6 +832,7 @@
 				128013B82A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CCB2A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E82CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
+				95C988272E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
 				12297FAD2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013C22A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D162A5D558400EE18B1 /* EFQRCode.swift in Sources */,
@@ -860,6 +869,7 @@
 				128013B52A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CC82A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E52CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
+				95C988292E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
 				12297FAA2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013BF2A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D132A5D558400EE18B1 /* EFQRCode.swift in Sources */,
