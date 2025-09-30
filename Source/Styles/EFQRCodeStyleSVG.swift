@@ -24,7 +24,7 @@ public class EFStyleSVGParams: EFStyleParams {
     public init(
         icon: EFStyleParamIcon? = nil,
         backdrop: EFStyleParamBackdrop = EFStyleSVGParams.defaultBackdrop,
-        dotSVG: String? = "<rect fill=\"red\" width=\"1\" height=\"1\"/>",
+        dotSVG: String? = "<rect width=\"1\" height=\"1\"/>",
         eyeSVG: String? = nil,
         dotColor: String? = nil,
         eyeColor: CGColor = CGColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0),
@@ -310,7 +310,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                 translate(\(centerX),\(centerY)) scale(\(scale),\(scale)) rotate(\(rotate)) 
                 """
                 let finalRect = """
-                <rect x="\(-halfW)" y="\(-halfH)" width="\(width)" height="\(height)" rx="\(rx)" ry="\(ry)" transform="\(transform)"/>
+                <rect fill=""\(fillColor) x="\(-halfW)" y="\(-halfH)" width="\(width)" height="\(height)" rx="\(rx)" ry="\(ry)" transform="\(transform)"/>
                 """
                 print(finalRect)
                 return finalRect
