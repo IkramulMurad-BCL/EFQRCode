@@ -310,7 +310,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                 translate(\(centerX),\(centerY)) scale(\(scale),\(scale)) rotate(\(rotate)) 
                 """
                 let finalRect = """
-                <rect fill=""\(fillColor) x="\(-halfW)" y="\(-halfH)" width="\(width)" height="\(height)" rx="\(rx)" ry="\(ry)" transform="\(transform)"/>
+                <rect fill="\(fillColor)" x="\(-halfW)" y="\(-halfH)" width="\(width)" height="\(height)" rx="\(rx)" ry="\(ry)" transform="\(transform)"/>
                 """
                 print(finalRect)
                 return finalRect
