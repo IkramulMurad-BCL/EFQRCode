@@ -17,7 +17,7 @@ public class EFStyleSVGParams: EFStyleParams {
     // SVG customization options
     public let dotSVG: String?
     public let eyeSVG: String?
-    public let dotColor: CGColor
+    public let dotColor: String?
     public let eyeColor: CGColor
     public let backgroundColor: CGColor
     
@@ -26,7 +26,7 @@ public class EFStyleSVGParams: EFStyleParams {
         backdrop: EFStyleParamBackdrop = EFStyleSVGParams.defaultBackdrop,
         dotSVG: String? = nil,
         eyeSVG: String? = nil,
-        dotColor: CGColor = CGColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0),
+        dotColor: String? = nil,
         eyeColor: CGColor = CGColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0),
         backgroundColor: CGColor = CGColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
     ) {
@@ -44,7 +44,7 @@ public class EFStyleSVGParams: EFStyleParams {
         backdrop: EFStyleParamBackdrop? = nil,
         dotSVG: String? = nil,
         eyeSVG: String? = nil,
-        dotColor: CGColor? = nil,
+        dotColor: String? = nil,
         eyeColor: CGColor? = nil,
         backgroundColor: CGColor? = nil
     ) -> EFStyleSVGParams {
@@ -215,7 +215,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         let typeTable = qrcode.model.getTypeTable()
         
         // Heart path from SVG
-        func drawHeart(id: String, x: Int, y: Int, size: Int, fillColor: String = "black") -> String {
+        func drawHeart(id: String, x: Int, y: Int, size: Int, fillColor: String = params.dotColor ?? "black") -> String {
             // For smaller size inside the module
             var centerX: CGFloat = x.cgFloat + size.cgFloat / 2.0
             var centerY: CGFloat = y.cgFloat + size.cgFloat / 2.0
@@ -403,7 +403,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                     }
 
                     if x <= nCount - 2 && y <= nCount - 2 && isSquareDarkAndAvailable(x: x, y: y, size: 2) {
-                        pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"2\" height=\"2\"/>")
+                        //pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"2\" height=\"2\"/>")
                         pointList.append(drawHeart(id: "\(idCount)", x: x, y: y, size: 2))
                         idCount += 1
                         for dx in 0..<2 { for dy in 0..<2 { available[x+dx][y+dy] = false } }
@@ -413,7 +413,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
 
                     // Single module
 //                    if x == 7 {
-                        pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
+                        //pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
                         pointList.append(drawHeart(id: "\(idCount)", x: x, y: y, size: 1))
                         idCount += 1
                         available[x][y] = false
