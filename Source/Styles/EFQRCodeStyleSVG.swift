@@ -365,9 +365,9 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
 //                    pointList.append(drawHeart(id: "\(idCount)", x: x, y: y, size: 9, fillColor: "none"))
 //                    idCount += 1
                     let positionAlpha = 1.0
-                    let positionColor = "black"
+                    let positionColor = params.dotColor ?? "black"
                     let posSize = 1.0
-                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" width=\"3\" height=\"3\" fill=\"green\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
+                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" width=\"3\" height=\"3\" fill=\"\(positionColor)\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
                     idCount += 1
                     pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" fill=\"none\" stroke-width=\"\(1 * posSize)\" stroke=\"\(positionColor)\" x=\"\(x.cgFloat - 2.5)\" y=\"\(y.cgFloat - 2.5)\" width=\"6\" height=\"6\"/>")
                     idCount += 1
