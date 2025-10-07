@@ -27,7 +27,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         let color = params.qrColor ?? "black"
         var idCount = 0
         var pointList: [String] = []
-        pointList.append("<g fill=\"red\">")
+        pointList.append("<g fill=\"\(color)\">")
         
         for y in 0..<nCount {
             for x in 0..<nCount {
@@ -35,16 +35,14 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
 
                 switch typeTable[x][y] {
                 case .posCenter:
-                    let positionAlpha = 1.0
-                    let posSize = 1.0
-                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
+                    pointList.append("<rect key=\"\(idCount)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
                     idCount += 1
-                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" stroke-width=\"\(1 * posSize)\" x=\"\(x.cgFloat - 2.5)\" y=\"\(y.cgFloat - 2.5)\" width=\"6\" height=\"6\"/>")
-                    idCount += 1
+                    
                     break
                     
                 case .posOther:
-                    //Processed in section posCenter
+                    pointList.append("<rect x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
+                    idCount += 1
                     break
 
                 default:
