@@ -17,6 +17,12 @@ public struct SVGGradient {
     public let endingColor: String
     public let startingPoint: GradientStartingPoint
     
+    public init(startingColor: String, endingColor: String, startingPoint: GradientStartingPoint) {
+        self.startingColor = startingColor
+        self.endingColor = endingColor
+        self.startingPoint = startingPoint
+    }
+    
     func getSVGString() -> String {
         var x1 = 0, x2 = 0, y1 = 0, y2 = 0
         switch startingPoint {
