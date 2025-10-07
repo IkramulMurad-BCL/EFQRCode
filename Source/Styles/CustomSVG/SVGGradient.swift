@@ -5,7 +5,7 @@
 //  Created by Dey device -5 on 7/10/25.
 //
 
-enum GradientStartingPoint {
+public enum GradientStartingPoint {
     case topLeading
     case topTrailing
     case top
@@ -13,9 +13,9 @@ enum GradientStartingPoint {
 }
 
 public struct SVGGradient {
-    let startingColor: String
-    let endingColor: String
-    let startingPoint: GradientStartingPoint
+    public let startingColor: String
+    public let endingColor: String
+    public let startingPoint: GradientStartingPoint
     
     func getSVGString() -> String {
         var x1 = 0, x2 = 0, y1 = 0, y2 = 0
