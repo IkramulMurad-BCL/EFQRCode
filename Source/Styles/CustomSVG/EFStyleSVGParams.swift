@@ -13,8 +13,8 @@ public class EFStyleSVGParams: EFStyleParams {
     // SVG customization options
     public let dotSVG: String?
     public let eyeSVG: String?
-    public let dotColor: String?
-    public let eyeColor: CGColor
+    public let qrColor: String?
+    public let qrGradient: Gradient?
     public let backgroundColor: CGColor
     
     public init(
@@ -22,15 +22,15 @@ public class EFStyleSVGParams: EFStyleParams {
         backdrop: EFStyleParamBackdrop = EFStyleSVGParams.defaultBackdrop,
         dotSVG: String? = "<rect width=\"1\" height=\"1\"/>",
         eyeSVG: String? = nil,
-        dotColor: String? = nil,
-        eyeColor: CGColor = CGColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0),
+        qrColor: String? = nil,
+        qrGradient: Gradient? = nil,
         backgroundColor: CGColor = CGColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
     ) {
         
         self.dotSVG = dotSVG
         self.eyeSVG = eyeSVG
-        self.dotColor = dotColor
-        self.eyeColor = eyeColor
+        self.qrColor = qrColor
+        self.qrGradient = qrGradient
         self.backgroundColor = backgroundColor
         super.init(icon: icon, backdrop: backdrop)
     }
@@ -40,8 +40,8 @@ public class EFStyleSVGParams: EFStyleParams {
         backdrop: EFStyleParamBackdrop? = nil,
         dotSVG: String? = nil,
         eyeSVG: String? = nil,
-        dotColor: String? = nil,
-        eyeColor: CGColor? = nil,
+        qrColor: String? = nil,
+        qrGradient: Gradient? = nil,
         backgroundColor: CGColor? = nil
     ) -> EFStyleSVGParams {
         return EFStyleSVGParams(
@@ -49,8 +49,8 @@ public class EFStyleSVGParams: EFStyleParams {
             backdrop: backdrop ?? self.backdrop,
             dotSVG: dotSVG ?? self.dotSVG,
             eyeSVG: eyeSVG ?? self.eyeSVG,
-            dotColor: dotColor ?? self.dotColor,
-            eyeColor: eyeColor ?? self.eyeColor,
+            qrColor: qrColor ?? self.qrColor,
+            qrGradient: qrGradient ?? self.qrGradient,
             backgroundColor: backgroundColor ?? self.backgroundColor
         )
     }

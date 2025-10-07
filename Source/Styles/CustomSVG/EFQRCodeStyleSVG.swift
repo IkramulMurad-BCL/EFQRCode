@@ -24,8 +24,10 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         var available = Array(repeating: Array(repeating: true, count: nCount), count: nCount)
         let typeTable = qrcode.model.getTypeTable()
         
+        let color = params.qrColor ?? "black"
         var idCount = 0
         var pointList: [String] = []
+        pointList.append("<g fill=\"red\">")
         
         for y in 0..<nCount {
             for x in 0..<nCount {
@@ -34,11 +36,10 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                 switch typeTable[x][y] {
                 case .posCenter:
                     let positionAlpha = 1.0
-                    let positionColor = params.dotColor ?? "black"
                     let posSize = 1.0
-                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" width=\"3\" height=\"3\" fill=\"\(positionColor)\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
+                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
                     idCount += 1
-                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" fill=\"none\" stroke-width=\"\(1 * posSize)\" stroke=\"\(positionColor)\" x=\"\(x.cgFloat - 2.5)\" y=\"\(y.cgFloat - 2.5)\" width=\"6\" height=\"6\"/>")
+                    pointList.append("<rect key=\"\(idCount)\" opacity=\"\(positionAlpha)\" stroke-width=\"\(1 * posSize)\" x=\"\(x.cgFloat - 2.5)\" y=\"\(y.cgFloat - 2.5)\" width=\"6\" height=\"6\"/>")
                     idCount += 1
                     break
                     
@@ -49,14 +50,14 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                 default:
                     //Normal modules, try grouping
                     if x <= nCount - 3 && y <= nCount - 3 && isSquareDarkAndAvailable(x: x, y: y, size: 3, qrcode: qrcode, available: available, typeTable: typeTable) {
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 3, fillColor: params.dotColor ?? "black", svgString: params.dotSVG!))
+                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 3, svgString: params.dotSVG!))
                         idCount += 1
                         for dx in 0..<3 { for dy in 0..<3 { available[x+dx][y+dy] = false } }
                         continue
                     }
 
                     if x <= nCount - 2 && y <= nCount - 2 && isSquareDarkAndAvailable(x: x, y: y, size: 2, qrcode: qrcode, available: available, typeTable: typeTable) {
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 2, fillColor: params.dotColor ?? "black", svgString: params.dotSVG!))
+                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 2, svgString: params.dotSVG!))
                         idCount += 1
                         for dx in 0..<2 { for dy in 0..<2 { available[x+dx][y+dy] = false } }
                         continue
@@ -66,14 +67,14 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                     // Single module
 //                    if x == 7 {
                         //pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 1, fillColor: params.dotColor ?? "black", svgString: params.dotSVG!))
+                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: params.dotSVG!))
                         idCount += 1
                         available[x][y] = false
 //                    }
                 }
             }
         }
-
+        pointList.append("</g>")
         return pointList
     }
     

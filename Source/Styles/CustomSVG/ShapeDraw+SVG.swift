@@ -7,7 +7,7 @@
 
 import Foundation
 
-func drawShape(id: String, x: Int, y: Int, size: Int, fillColor: String = "black", svgString: String) -> String {
+func drawShape(id: String, x: Int, y: Int, size: Int, svgString: String) -> String {
     // For smaller size inside the module
     let centerX: CGFloat = x.cgFloat + size.cgFloat / 2.0
     let centerY: CGFloat = y.cgFloat + size.cgFloat / 2.0
@@ -40,7 +40,6 @@ func drawShape(id: String, x: Int, y: Int, size: Int, fillColor: String = "black
               d="\(normalizedHeartPath)"
               stroke="black"
               stroke-width="1"
-              fill="\(fillColor)"
               transform="translate(\(centerX),\(centerY))
                          scale(\(scale),\(scale)) translate(\(-cx), \(-cy))"/>
         """
@@ -100,7 +99,7 @@ func drawShape(id: String, x: Int, y: Int, size: Int, fillColor: String = "black
         translate(\(centerX),\(centerY)) scale(\(scale),\(scale)) rotate(\(rotate)) 
         """
         let finalRect = """
-        <rect fill="\(fillColor)" x="\(-halfW)" y="\(-halfH)" width="\(width)" height="\(height)" rx="\(rx)" ry="\(ry)" transform="\(transform)"/>
+        <rect x="\(-halfW)" y="\(-halfH)" width="\(width)" height="\(height)" rx="\(rx)" ry="\(ry)" transform="\(transform)"/>
         """
         print(finalRect)
         return finalRect
@@ -121,7 +120,6 @@ func drawShape(id: String, x: Int, y: Int, size: Int, fillColor: String = "black
                         r="\(r)"
                         stroke="black"
                         stroke-width="1"
-                        fill="\(fillColor)"
                         transform="translate(\(centerX),\(centerY))
                                    scale(\(actualDrawingSize / (r * 2)))"/>
                 """
