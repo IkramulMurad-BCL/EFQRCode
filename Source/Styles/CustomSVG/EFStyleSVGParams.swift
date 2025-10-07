@@ -14,7 +14,7 @@ public class EFStyleSVGParams: EFStyleParams {
     public let dotSVG: String?
     public let eyeSVG: String?
     public let qrColor: String?
-    public let qrGradient: Gradient?
+    public let qrGradient: SVGGradient?
     public let backgroundColor: CGColor
     
     public init(
@@ -23,7 +23,7 @@ public class EFStyleSVGParams: EFStyleParams {
         dotSVG: String? = "<rect width=\"1\" height=\"1\"/>",
         eyeSVG: String? = nil,
         qrColor: String? = nil,
-        qrGradient: Gradient? = nil,
+        qrGradient: SVGGradient? = nil,
         backgroundColor: CGColor = CGColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
     ) {
         
@@ -41,7 +41,7 @@ public class EFStyleSVGParams: EFStyleParams {
         dotSVG: String? = nil,
         eyeSVG: String? = nil,
         qrColor: String? = nil,
-        qrGradient: Gradient? = nil,
+        qrGradient: SVGGradient? = nil,
         backgroundColor: CGColor? = nil
     ) -> EFStyleSVGParams {
         return EFStyleSVGParams(

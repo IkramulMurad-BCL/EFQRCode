@@ -27,7 +27,13 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         let color = params.qrColor ?? "black"
         var idCount = 0
         var pointList: [String] = []
-        pointList.append("<g fill=\"\(color)\">")
+        
+        if let gradient = params.qrGradient {
+            pointList.append(gradient.getSVGString())
+            pointList.append("<g fill=\"url(#qrGradient)\">")
+        } else {
+            pointList.append("<g fill=\"\(color)\">")
+        }
         
         for y in 0..<nCount {
             for x in 0..<nCount {
