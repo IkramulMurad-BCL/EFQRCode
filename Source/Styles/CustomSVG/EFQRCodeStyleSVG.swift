@@ -28,13 +28,6 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         var idCount = 0
         var pointList: [String] = []
         
-        if let gradient = params.qrGradient {
-            pointList.append(gradient.getSVGString())
-            pointList.append("<g fill=\"url(#qrGradient)\">")
-        } else {
-            pointList.append("<g fill=\"\(color)\">")
-        }
-        
         for y in 0..<nCount {
             for x in 0..<nCount {
                 if !qrcode.model.isDark(x, y) || !available[x][y] { continue }
@@ -78,7 +71,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                 }
             }
         }
-        pointList.append("</g>")
+
         return pointList
     }
     
