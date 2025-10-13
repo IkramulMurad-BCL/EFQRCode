@@ -11,22 +11,22 @@ public protocol Logo {
     var adjustment: LogoAdjustment { get set }
 }
 
-class ImageLogo: Logo {
-    var adjustment: LogoAdjustment
+public class ImageLogo: Logo {
+    public var adjustment: LogoAdjustment
     
-    init(adjustment: LogoAdjustment) {
+    public init(adjustment: LogoAdjustment) {
         self.adjustment = adjustment
     }
 }
 
-class TextLogo: Logo {
-    var adjustment: LogoAdjustment
+public class TextLogo: Logo {
+    public var adjustment: LogoAdjustment
     
     let content: String
     let font: UIFont
     let visualFill: VisualFill
     
-    init(adjustment: LogoAdjustment, content: String, font: UIFont, visualFill: VisualFill) {
+    public init(adjustment: LogoAdjustment, content: String, font: UIFont, visualFill: VisualFill) {
         self.adjustment = adjustment
         self.content = content
         self.font = font

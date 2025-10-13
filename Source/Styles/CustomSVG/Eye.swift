@@ -9,7 +9,7 @@ public class Eye {
     let innerSvgString: String
     let outerSvgString: String
     
-    init(innerSvgString: String = "", outerSvgString: String = "") {
+    public init(innerSvgString: String = "", outerSvgString: String = "") {
         self.innerSvgString = innerSvgString
         self.outerSvgString = outerSvgString
     }

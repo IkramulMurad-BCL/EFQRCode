@@ -10,3 +10,15 @@ import UIKit
 public protocol VisualFill {
     
 }
+
+public class SolidColor: VisualFill {
+    
+}
+
+public class LinearGradient: VisualFill {
+    
+}
+
+public class ImageMask: VisualFill {
+    
+}

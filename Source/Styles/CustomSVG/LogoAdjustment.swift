@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum LogoStyle {
+public enum LogoStyle {
     case square
     case round
     case scanAssistRect
@@ -15,7 +15,7 @@ enum LogoStyle {
     case other
 }
 
-enum LogoPosition {
+public enum LogoPosition {
     case center
     case bottomRight
 }
@@ -26,7 +26,7 @@ public class LogoAdjustment {
     let size: CGFloat
     let margin: CGFloat
     
-    init(style: LogoStyle, position: LogoPosition, size: CGFloat, margin: CGFloat) {
+    public init(style: LogoStyle, position: LogoPosition, size: CGFloat, margin: CGFloat) {
         self.style = style
         self.position = position
         self.size = size
