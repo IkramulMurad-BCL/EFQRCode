@@ -11,11 +11,11 @@ enum DotGroupingStyle {
     case group(Int)
 }
 
-class Dot {
+public class Dot {
     let svgString: String
     let groupingStyle: DotGroupingStyle
     
-    init(svgString: String, groupingStyle: DotGroupingStyle) {
+    init(svgString: String = "<rect width=\"1\" height=\"1\"/>", groupingStyle: DotGroupingStyle = .none) {
         self.svgString = svgString
         self.groupingStyle = groupingStyle
     }

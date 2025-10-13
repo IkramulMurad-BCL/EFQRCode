@@ -9,7 +9,7 @@ import UIKit
 
 // MARK: - Gradient Style Configuration
 public class EFQRCodeCustomGenerator: EFQRCode.Generator {
-    public init(content: String, style: EFQRCodeStyle = .svg(params: .init())) throws {
+    public init(content: String, style: EFQRCodeStyle) throws {
         guard let data = content.data(using: .utf8) else {
             throw EFQRCodeError.text(content, incompatibleWithEncoding: .utf8)
         }

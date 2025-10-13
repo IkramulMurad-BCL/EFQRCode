@@ -20,7 +20,7 @@ enum LogoPosition {
     case bottomRight
 }
 
-class LogoAdjustment {
+public class LogoAdjustment {
     let style: LogoStyle
     let position: LogoPosition
     let size: CGFloat

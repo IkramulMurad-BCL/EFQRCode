@@ -5,10 +5,12 @@
 //  Created by Dey device -5 on 13/10/25.
 //
 
-class Eye {
-    let svgString: String
+public class Eye {
+    let innerSvgString: String
+    let outerSvgString: String
     
-    init(svgString: String) {
-        self.svgString = svgString
+    init(innerSvgString: String = "", outerSvgString: String = "") {
+        self.innerSvgString = innerSvgString
+        self.outerSvgString = outerSvgString
     }
 }

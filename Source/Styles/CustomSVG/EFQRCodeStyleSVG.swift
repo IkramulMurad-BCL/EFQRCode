@@ -24,7 +24,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         var available = Array(repeating: Array(repeating: true, count: nCount), count: nCount)
         let typeTable = qrcode.model.getTypeTable()
         
-        let color = params.qrColor ?? "black"
+        let color = "black"
         var idCount = 0
         var pointList: [String] = []
         
@@ -47,14 +47,14 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                 default:
                     //Normal modules, try grouping
                     if x <= nCount - 3 && y <= nCount - 3 && isSquareDarkAndAvailable(x: x, y: y, size: 3, qrcode: qrcode, available: available, typeTable: typeTable) {
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 3, svgString: params.dotSVG!))
+                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 3, svgString: params.dot.svgString))
                         idCount += 1
                         for dx in 0..<3 { for dy in 0..<3 { available[x+dx][y+dy] = false } }
                         continue
                     }
 
                     if x <= nCount - 2 && y <= nCount - 2 && isSquareDarkAndAvailable(x: x, y: y, size: 2, qrcode: qrcode, available: available, typeTable: typeTable) {
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 2, svgString: params.dotSVG!))
+                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 2, svgString: params.dot.svgString))
                         idCount += 1
                         for dx in 0..<2 { for dy in 0..<2 { available[x+dx][y+dy] = false } }
                         continue
@@ -64,7 +64,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                     // Single module
 //                    if x == 7 {
                         //pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: params.dotSVG!))
+                    pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: params.dot.svgString))
                         idCount += 1
                         available[x][y] = false
 //                    }
