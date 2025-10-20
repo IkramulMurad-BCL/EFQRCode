@@ -19,27 +19,41 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
     public override func toImage(width: CGFloat, insets: UIEdgeInsets = .zero) throws -> UIImage {
         let qrImage = try super.toImage(width: width)
         
-        var maskImage = UIImage()
-        
-        let style = self.style as! EFQRCodeStyleSVG
+        guard let style = self.style as? EFQRCodeStyleSVG else {
+            throw EFQRCodeError.cannotCreateUIImage
+        }
         let params = style.params
-//        switch params.foreground {
-//        case let solidColor as SolidColor:
-//            maskImage = createGradientImageMatching(qrImage, startColor: solidColor.color, endColor: solidColor.color)
-//        case let linearGradient as LinearGradient:
-//            maskImage = createGradientImageMatching(qrImage, startColor: linearGradient.startColor, endColor: linearGradient.endColor)
-//        case let imageMask as ImageMask:
-//            maskImage = imageMask.image
-//        default:
-//            break
-//        }
         
-        maskImage = params.foreground.asImage(size: qrImage.size)!
-        guard let finalImage = applyMask(qrImage: qrImage, maskImage: maskImage, isForeGround: false) else {
+        let size = qrImage.size
+        let scale = qrImage.scale
+        
+        let backgroundImage = params.background.asImage(size: size)
+        let foregroundImage = params.foreground.asImage(size: size)
+        
+        // 3️⃣ Apply mask for foreground (QR shape)
+        guard let qrMaskImage = qrImage.cgImage,
+              let fgMask = createMaskedImage(source: foregroundImage, mask: qrMaskImage) else {
             throw EFQRCodeError.cannotCreateUIImage
         }
         
+        // 4️⃣ Composite both layers
+        let finalImage = UIGraphicsImageRenderer(size: size, format: {
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = scale
+            return format
+        }()).image { _ in
+            // Draw background first
+            backgroundImage?.draw(in: CGRect(origin: .zero, size: size))
+            // Then draw masked foreground on top
+            UIImage(cgImage: fgMask, scale: scale, orientation: .up).draw(in: CGRect(origin: .zero, size: size))
+        }
+        
         return finalImage
+    }
+    
+    private func createMaskedImage(source: UIImage?, mask: CGImage) -> CGImage? {
+        guard let src = source?.cgImage else { return nil }
+        return mask.masking(src)
     }
     
     private func createGradientImageMatching(_ referenceImage: UIImage, startColor: UIColor, endColor: UIColor) -> UIImage {

@@ -11,11 +11,31 @@ public class EFStyleSVGParams: EFStyleParams {
     public static let defaultBackdrop: EFStyleParamBackdrop = EFStyleParamBackdrop()
     
     // SVG customization options
-    let dot: Dot
-    let eye: Eye
-    let foreground: VisualFill
-    let background: VisualFill
-    let logo: Logo
+    var dot: Dot
+    var eye: Eye
+    var foreground: VisualFill
+    var background: VisualFill
+    var logo: Logo
+    
+    public func setForeground(_ visualFill: VisualFill) {
+        self.foreground = visualFill
+    }
+    
+    public func setBackground(_ visualFill: VisualFill) {
+        self.background = visualFill
+    }
+    
+    public func setLogo(_ logo: Logo) {
+        self.logo = logo
+    }
+    
+    public func setDot(_ dot: Dot) {
+        self.dot = dot
+    }
+    
+    public func setEye(_ eye: Eye) {
+        self.eye = eye
+    }
     
     public init(
         icon: EFStyleParamIcon? = nil,
