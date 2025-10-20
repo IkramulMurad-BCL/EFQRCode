@@ -24,7 +24,6 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         var available = Array(repeating: Array(repeating: true, count: nCount), count: nCount)
         let typeTable = qrcode.model.getTypeTable()
         
-        let color = "black"
         var idCount = 0
         var pointList: [String] = []
         

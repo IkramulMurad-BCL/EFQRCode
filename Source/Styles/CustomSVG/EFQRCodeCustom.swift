@@ -19,9 +19,23 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
     public override func toImage(width: CGFloat, insets: UIEdgeInsets = .zero) throws -> UIImage {
         let qrImage = try super.toImage(width: width)
         
-        let gradientImage = createGradientImageMatching(qrImage, startColor: UIColor(hex: "#9CE9A4"), endColor: UIColor(hex: "#D6718E"))
+        var maskImage = UIImage()
         
-        guard let finalImage = applyGradient(qrImage: qrImage, gradientImage: gradientImage, isForeGround: false) else {
+        let style = self.style as! EFQRCodeStyleSVG
+        let params = style.params
+//        switch params.foreground {
+//        case let solidColor as SolidColor:
+//            maskImage = createGradientImageMatching(qrImage, startColor: solidColor.color, endColor: solidColor.color)
+//        case let linearGradient as LinearGradient:
+//            maskImage = createGradientImageMatching(qrImage, startColor: linearGradient.startColor, endColor: linearGradient.endColor)
+//        case let imageMask as ImageMask:
+//            maskImage = imageMask.image
+//        default:
+//            break
+//        }
+        
+        maskImage = params.foreground.asImage(size: qrImage.size)!
+        guard let finalImage = applyMask(qrImage: qrImage, maskImage: maskImage, isForeGround: false) else {
             throw EFQRCodeError.cannotCreateUIImage
         }
         
@@ -57,9 +71,9 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         }
     }
 
-    func applyGradient(qrImage: UIImage, gradientImage: UIImage, isForeGround: Bool = true) -> UIImage? {
+    func applyMask(qrImage: UIImage, maskImage: UIImage, isForeGround: Bool = true) -> UIImage? {
         guard let qrCI = CIImage(image: qrImage),
-              let gradientCI = CIImage(image: gradientImage) else { return nil }
+              let gradientCI = CIImage(image: maskImage) else { return nil }
 
         var mask = qrCI
         if isForeGround {
