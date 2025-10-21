@@ -53,7 +53,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
     
     private func createMaskedImage(source: UIImage?, mask: CGImage) -> CGImage? {
         guard let src = source?.cgImage else { return nil }
-        return mask.masking(src)
+        return src.masking(mask)
     }
     
     private func createGradientImageMatching(_ referenceImage: UIImage, startColor: UIColor, endColor: UIColor) -> UIImage {
