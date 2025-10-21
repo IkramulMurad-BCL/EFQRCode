@@ -31,9 +31,13 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let foregroundImage = params.foreground.asImage(size: size, scale: scale)
         
         // 3️⃣ Apply mask for foreground (QR shape)
-        guard let qrMaskImage = qrImage.cgImage,
-              let fgMask = createMaskedImage(source: foregroundImage, mask: qrMaskImage) else {
-            throw EFQRCodeError.cannotCreateUIImage
+        var maskedForeground: UIImage? = nil
+        if let fg = foregroundImage {
+            // isForeGround: true so black QR modules become visible areas
+            maskedForeground = applyMask(qrImage: qrImage, maskImage: fg, isForeGround: true)
+            if maskedForeground == nil {
+                throw EFQRCodeError.cannotCreateUIImage
+            }
         }
         
         // 4️⃣ Composite both layers
@@ -45,17 +49,12 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             // Draw background first
             backgroundImage?.draw(in: CGRect(origin: .zero, size: size))
             // Then draw masked foreground on top
-            UIImage(cgImage: fgMask, scale: scale, orientation: .up).draw(in: CGRect(origin: .zero, size: size))
+            UIImage(cgImage: maskedForeground!.cgImage!, scale: scale, orientation: .up).draw(in: CGRect(origin: .zero, size: size))
         }
         
         return finalImage
     }
-    
-    private func createMaskedImage(source: UIImage?, mask: CGImage) -> CGImage? {
-        guard let src = source?.cgImage else { return nil }
-        return src.masking(mask)
-    }
-    
+        
     private func createGradientImageMatching(_ referenceImage: UIImage, startColor: UIColor, endColor: UIColor) -> UIImage {
         let logicalSize = referenceImage.size
         let scale = referenceImage.scale
@@ -87,7 +86,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
 
     func applyMask(qrImage: UIImage, maskImage: UIImage, isForeGround: Bool = true) -> UIImage? {
         guard let qrCI = CIImage(image: qrImage),
-              let gradientCI = CIImage(image: maskImage) else { return nil }
+              let fillCI = CIImage(image: maskImage) else { return nil }
 
         var mask = qrCI
         if isForeGround {
@@ -95,15 +94,17 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             mask = qrCI.applyingFilter("CIColorInvert")
         }
 
+        let transparentBackground = CIImage(color: .clear).cropped(to: qrCI.extent)
+
         // Blend gradient into the QR's black parts
-        let output = gradientCI.applyingFilter("CIBlendWithMask", parameters: [
+        let output = fillCI.applyingFilter("CIBlendWithMask", parameters: [
             kCIInputMaskImageKey: mask,
-            kCIInputBackgroundImageKey: CIImage(color: .white).cropped(to: qrCI.extent)
+            kCIInputBackgroundImageKey: transparentBackground
         ])
 
         let context = CIContext()
         guard let cgImage = context.createCGImage(output, from: output.extent) else { return nil }
-        return UIImage(cgImage: cgImage)
+        return UIImage(cgImage: cgImage, scale: qrImage.scale, orientation: .up)
     }
 }
 
