@@ -27,8 +27,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let size = qrImage.size
         let scale = qrImage.scale
         
-        let backgroundImage = params.background.asImage(size: size)
-        let foregroundImage = params.foreground.asImage(size: size)
+        let backgroundImage = params.background.asImage(size: size, scale: scale)
+        let foregroundImage = params.foreground.asImage(size: size, scale: scale)
         
         // 3️⃣ Apply mask for foreground (QR shape)
         guard let qrMaskImage = qrImage.cgImage,

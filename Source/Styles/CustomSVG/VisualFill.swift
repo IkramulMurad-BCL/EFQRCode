@@ -29,7 +29,7 @@ public enum GradientDirection {
 
 
 public protocol VisualFill {
-    func asImage(size: CGSize) -> UIImage?
+    func asImage(size: CGSize, scale: CGFloat) -> UIImage?
 }
 
 public class SolidColor: VisualFill {
@@ -39,13 +39,15 @@ public class SolidColor: VisualFill {
         self.color = UIColor(hex: hex)
     }
     
-    public func asImage(size: CGSize) -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions(size, false, 0)
-        color.setFill()
-        UIRectFill(CGRect(origin: .zero, size: size))
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image
+    public func asImage(size: CGSize, scale: CGFloat = 1.0) -> UIImage? {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        
+        return renderer.image { context in
+            color.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
     }
 }
 
@@ -60,10 +62,12 @@ public class LinearGradient: VisualFill {
         self.direction = direction
     }
     
-    public func asImage(size: CGSize) -> UIImage? {
-        let renderer = UIGraphicsImageRenderer(size: size)
+    public func asImage(size: CGSize, scale: CGFloat = 1.0) -> UIImage? {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        
         return renderer.image { context in
-            let cgContext = context.cgContext
             let colors = [startColor.cgColor, endColor.cgColor] as CFArray
             guard let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
                                             colors: colors,
@@ -73,7 +77,7 @@ public class LinearGradient: VisualFill {
             let startPoint = CGPoint(x: start.x * size.width, y: start.y * size.height)
             let endPoint = CGPoint(x: end.x * size.width, y: end.y * size.height)
             
-            cgContext.drawLinearGradient(gradient, start: startPoint, end: endPoint, options: [])
+            context.cgContext.drawLinearGradient(gradient, start: startPoint, end: endPoint, options: [])
         }
     }
 }
@@ -85,7 +89,13 @@ public class ImageMask: VisualFill {
         self.image = image
     }
     
-    public func asImage(size: CGSize) -> UIImage? {
-        return image
+    public func asImage(size: CGSize, scale: CGFloat = 1.0) -> UIImage? {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
     }
 }
