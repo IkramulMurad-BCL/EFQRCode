@@ -13,9 +13,11 @@ public protocol Logo {
 
 public class ImageLogo: Logo {
     public var adjustment: LogoAdjustment
+    let image: UIImage
     
-    public init(adjustment: LogoAdjustment) {
+    public init(adjustment: LogoAdjustment, image: UIImage) {
         self.adjustment = adjustment
+        self.image = image
     }
 }
 
