@@ -13,9 +13,9 @@ public protocol Logo {
 
 public class ImageLogo: Logo {
     public var adjustment: LogoAdjustment
-    let imageMask: ImageMask
+    var imageMask: ImageMask?
     
-    public init(adjustment: LogoAdjustment, imageMask: ImageMask) {
+    public init(adjustment: LogoAdjustment, imageMask: ImageMask? = nil) {
         self.adjustment = adjustment
         self.imageMask = imageMask
     }
