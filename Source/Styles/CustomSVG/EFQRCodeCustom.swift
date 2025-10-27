@@ -45,6 +45,37 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             }
         }
         
+        let logoWidth = size.width * sizeFactor
+        let logoHeight = logoWidth
+        let margin = size.width * marginFactor
+        var logoRect: CGRect
+        
+        switch position {
+        case .bottomRight:
+            logoRect = CGRect(
+                x: size.width - logoWidth - margin,
+                y: size.height - logoHeight - margin,
+                width: logoWidth,
+                height: logoHeight
+            )
+        case .center:
+            fallthrough
+        default:
+            logoRect = CGRect(
+                x: (size.width - logoWidth) / 2 - margin,
+                y: (size.height - logoHeight) / 2 - margin,
+                width: logoWidth,
+                height: logoHeight
+            )
+        }
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
+        let fgContext = UIGraphicsGetCurrentContext()!
+        fgContext.clear(logoRect) // removes QR modules in this rect
+        let updatedMaskedForeground = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
         // 4️⃣ Composite all layers
         let format = UIGraphicsImageRendererFormat()
         format.scale = scale
@@ -52,39 +83,15 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             backgroundImage?.draw(in: CGRect(origin: .zero, size: size))
             
             if let logoImage {
-                let logoWidth = size.width * sizeFactor
-                let logoHeight = logoWidth
-                let margin = size.width * marginFactor
-                var logoRect: CGRect
-                
-                switch position {
-                case .bottomRight:
-                    logoRect = CGRect(
-                        x: size.width - logoWidth - margin,
-                        y: size.height - logoHeight - margin,
-                        width: logoWidth,
-                        height: logoHeight
-                    )
-                case .center:
-                    fallthrough
-                default:
-                    logoRect = CGRect(
-                        x: (size.width - logoWidth) / 2,
-                        y: (size.height - logoHeight) / 2,
-                        width: logoWidth,
-                        height: logoHeight
-                    )
-                }
-                
-                // 3️⃣ Erase logo area in QR region (to ensure visibility)
-                context.cgContext.clear(logoRect)
-                
-                // Optional: fill with white or background tone
-                context.cgContext.setFillColor(UIColor.white.cgColor)
-                context.cgContext.fill(logoRect)
+//                // 3️⃣ Erase logo area in QR region (to ensure visibility)
+//                context.cgContext.clear(logoRect)
+//                
+//                // Optional: fill with white or background tone
+//                context.cgContext.setFillColor(UIColor.white.cgColor)
+//                context.cgContext.fill(logoRect)
                 
                 // 4️⃣ Draw masked QR on top
-                maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
+                updatedMaskedForeground?.draw(in: CGRect(origin: .zero, size: size))
                 
                 // 5️⃣ Draw logo with style clipping
                 let path: UIBezierPath
