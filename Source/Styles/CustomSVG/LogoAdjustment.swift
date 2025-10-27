@@ -22,15 +22,31 @@ public enum LogoPosition {
 }
 
 public class LogoAdjustment {
-    let style: LogoStyle
-    let position: LogoPosition
-    let size: CGFloat
-    let margin: CGFloat
+    var style: LogoStyle
+    var position: LogoPosition
+    var size: CGFloat
+    var margin: CGFloat
     
     public init(style: LogoStyle, position: LogoPosition, size: CGFloat, margin: CGFloat) {
         self.style = style
         self.position = position
         self.size = size
+        self.margin = margin
+    }
+    
+    public func updateStyle(style: LogoStyle) {
+        self.style = style
+    }
+    
+    public func updatePosition(position: LogoPosition) {
+        self.position = position
+    }
+    
+    public func updateSize(size: CGFloat) {
+        self.size = size
+    }
+    
+    public func updateMargin(margin: CGFloat) {
         self.margin = margin
     }
 }
