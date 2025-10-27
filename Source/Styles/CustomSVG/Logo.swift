@@ -9,6 +9,7 @@ import UIKit
 
 public protocol Logo {
     var adjustment: LogoAdjustment { get set }
+    func asImage(size: CGSize) -> UIImage?
 }
 
 public class ImageLogo: Logo {
@@ -18,6 +19,10 @@ public class ImageLogo: Logo {
     public init(adjustment: LogoAdjustment, imageMask: ImageMask? = nil) {
         self.adjustment = adjustment
         self.imageMask = imageMask
+    }
+    
+    public func asImage(size: CGSize) -> UIImage? {
+        imageMask?.asImage(size: size)
     }
 }
 
@@ -33,5 +38,9 @@ public class TextLogo: Logo {
         self.content = content
         self.font = font
         self.visualFill = visualFill
+    }
+    
+    public func asImage(size: CGSize) -> UIImage? {
+        nil
     }
 }

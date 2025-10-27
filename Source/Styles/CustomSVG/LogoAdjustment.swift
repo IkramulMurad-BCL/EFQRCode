@@ -10,9 +10,10 @@ import Foundation
 public enum LogoStyle {
     case square
     case round
+    case roundedSquare
     case scanAssistRect
     case scanAssistRoundedRect
-    case other
+    case none
 }
 
 public enum LogoPosition {
