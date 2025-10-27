@@ -7,9 +7,17 @@
 
 import UIKit
 
+public enum LogoData {
+    case image(mask: ImageMask?)
+    case text(content: String, font: UIFont, visualFill: VisualFill)
+}
+
 public protocol Logo {
     var adjustment: LogoAdjustment { get set }
     func asImage(size: CGSize) -> UIImage?
+    
+    func updateLogo(with data: LogoData)
+    func updateAdjustment(adjustment: LogoAdjustment)
 }
 
 public class ImageLogo: Logo {
@@ -24,14 +32,28 @@ public class ImageLogo: Logo {
     public func asImage(size: CGSize) -> UIImage? {
         imageMask?.asImage(size: size)
     }
+    
+    public func updateAdjustment(adjustment: LogoAdjustment) {
+        self.adjustment = adjustment
+    }
+    
+    public func updateLogo(with data: LogoData) {
+        switch data {
+        case .image(let mask):
+            self.imageMask = mask
+        case .text:
+            // ignore text data for image logo
+            break
+        }
+    }
 }
 
 public class TextLogo: Logo {
     public var adjustment: LogoAdjustment
     
-    let content: String
-    let font: UIFont
-    let visualFill: VisualFill
+    var content: String
+    var font: UIFont
+    var visualFill: VisualFill
     
     public init(adjustment: LogoAdjustment, content: String, font: UIFont, visualFill: VisualFill) {
         self.adjustment = adjustment
@@ -42,5 +64,21 @@ public class TextLogo: Logo {
     
     public func asImage(size: CGSize) -> UIImage? {
         nil
+    }
+    
+    public func updateAdjustment(adjustment: LogoAdjustment) {
+        self.adjustment = adjustment
+    }
+    
+    public func updateLogo(with data: LogoData) {
+        switch data {
+        case .text(let content, let font, let visualFill):
+            self.content = content
+            self.font = font
+            self.visualFill = visualFill
+        case .image:
+            // ignore image data for text logo
+            break
+        }
     }
 }
