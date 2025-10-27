@@ -91,7 +91,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 switch styleType {
                 case .round:
                     path = UIBezierPath(ovalIn: logoRect)
-                case .roundedSquare:
+                case .roundedRect:
                     path = UIBezierPath(roundedRect: logoRect, cornerRadius: logoWidth * 0.2)
                 default:
                     path = UIBezierPath(rect: logoRect)

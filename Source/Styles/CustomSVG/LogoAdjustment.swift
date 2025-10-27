@@ -8,9 +8,9 @@
 import Foundation
 
 public enum LogoStyle {
-    case square
+    case rect
     case round
-    case roundedSquare
+    case roundedRect
     case scanAssistRect
     case scanAssistRoundedRect
     case none
