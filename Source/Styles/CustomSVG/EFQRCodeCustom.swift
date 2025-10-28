@@ -24,6 +24,10 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         }
         let params = style.params
         
+        let moduleCount = CGFloat(qrcode.model.moduleCount)
+        let quietzone = params.backdrop.quietzone ?? EFEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
+        let quietZonePixel = (width / (moduleCount + quietzone.left + quietzone.right)) * quietzone.left
+        
         let size = qrImage.size
         let scale = qrImage.scale
         
@@ -53,8 +57,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         switch position {
         case .bottomRight:
             logoRectWithMargin = CGRect(
-                x: size.width - logoWidth - margin,
-                y: size.height - logoHeight - margin,
+                x: size.width - logoWidth - margin - quietZonePixel,
+                y: size.height - logoHeight - margin - quietZonePixel,
                 width: logoWidth + margin * 2,
                 height: logoHeight + margin * 2
             )
