@@ -48,11 +48,11 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let logoWidth = size.width * sizeFactor
         let logoHeight = logoWidth
         let margin = size.width * marginFactor
-        var logoRect: CGRect
+        var logoRectWithMargin: CGRect
         
         switch position {
         case .bottomRight:
-            logoRect = CGRect(
+            logoRectWithMargin = CGRect(
                 x: size.width - logoWidth - margin,
                 y: size.height - logoHeight - margin,
                 width: logoWidth + margin * 2,
@@ -61,7 +61,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         case .center:
             fallthrough
         default:
-            logoRect = CGRect(
+            logoRectWithMargin = CGRect(
                 x: (size.width - logoWidth) / 2 - margin,
                 y: (size.height - logoHeight) / 2 - margin,
                 width: logoWidth + margin * 2,
@@ -69,10 +69,12 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             )
         }
         
+        let logoRect = logoRectWithMargin.insetBy(dx: margin, dy: margin)
+        
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
         let fgContext = UIGraphicsGetCurrentContext()!
-        fgContext.clear(logoRect) // removes QR modules in this rect
+        fgContext.clear(logoRectWithMargin) // removes QR modules in this rect
         let updatedMaskedForeground = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
