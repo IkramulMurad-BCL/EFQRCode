@@ -55,8 +55,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             logoRect = CGRect(
                 x: size.width - logoWidth - margin,
                 y: size.height - logoHeight - margin,
-                width: logoWidth,
-                height: logoHeight
+                width: logoWidth + margin * 2,
+                height: logoHeight + margin * 2
             )
         case .center:
             fallthrough
@@ -64,8 +64,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             logoRect = CGRect(
                 x: (size.width - logoWidth) / 2 - margin,
                 y: (size.height - logoHeight) / 2 - margin,
-                width: logoWidth,
-                height: logoHeight
+                width: logoWidth + margin * 2,
+                height: logoHeight + margin * 2
             )
         }
         
