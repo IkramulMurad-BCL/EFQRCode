@@ -75,10 +75,28 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         let logoRect = logoRectWithMargin.insetBy(dx: margin, dy: margin)
         
+        let logoPath: UIBezierPath
+        let logoHolderPath: UIBezierPath
+        switch styleType {
+        case .round:
+            logoHolderPath = UIBezierPath(ovalIn: logoRectWithMargin)
+            logoPath = UIBezierPath(ovalIn: logoRect)
+        case .roundedRect:
+            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: logoRectWithMargin.width * 0.2)
+            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoWidth * 0.2)
+        default:
+            logoHolderPath = UIBezierPath(rect: logoRectWithMargin)
+            logoPath = UIBezierPath(rect: logoRect)
+        }
+        
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
         let fgContext = UIGraphicsGetCurrentContext()!
-        fgContext.clear(logoRectWithMargin) // removes QR modules in this rect
+        fgContext.setBlendMode(.clear)
+        fgContext.addPath(logoHolderPath.cgPath)
+        fgContext.fillPath()
+
+        fgContext.setBlendMode(.normal)
         let updatedMaskedForeground = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
@@ -100,17 +118,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 updatedMaskedForeground?.draw(in: CGRect(origin: .zero, size: size))
                 
                 // 5️⃣ Draw logo with style clipping
-                let path: UIBezierPath
-                switch styleType {
-                case .round:
-                    path = UIBezierPath(ovalIn: logoRect)
-                case .roundedRect:
-                    path = UIBezierPath(roundedRect: logoRect, cornerRadius: logoWidth * 0.2)
-                default:
-                    path = UIBezierPath(rect: logoRect)
-                }
-                
-                path.addClip()
+                logoPath.addClip()
                 logoImage.draw(in: logoRect)
             } else {
                 maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
