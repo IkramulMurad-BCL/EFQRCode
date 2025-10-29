@@ -22,10 +22,10 @@ public enum LogoPosition {
 }
 
 public class LogoAdjustment {
-    var style: LogoStyle
-    var position: LogoPosition
-    var size: CGFloat
-    var margin: CGFloat
+    public var style: LogoStyle
+    public var position: LogoPosition
+    public var size: CGFloat
+    public var margin: CGFloat
     
     public init(style: LogoStyle, position: LogoPosition, size: CGFloat, margin: CGFloat) {
         self.style = style
