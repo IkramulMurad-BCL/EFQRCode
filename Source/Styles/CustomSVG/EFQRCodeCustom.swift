@@ -53,6 +53,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let logoHeight = logoWidth
         let margin = size.width * marginFactor
         var logoRectWithMargin: CGRect
+        var logoRect: CGRect
         
         switch position {
         case .bottomRight:
@@ -62,6 +63,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 width: logoWidth + margin,
                 height: logoHeight + margin
             )
+            logoRect = CGRect(x: Int(logoRectWithMargin.minX + margin), y: Int(logoRectWithMargin.minY + margin), width: Int(logoRectWithMargin.width - margin), height: Int(logoRectWithMargin.height - margin))
         case .center:
             fallthrough
         default:
@@ -71,9 +73,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 width: logoWidth + margin * 2,
                 height: logoHeight + margin * 2
             )
+            logoRect = logoRectWithMargin.insetBy(dx: margin, dy: margin)
         }
-        
-        let logoRect = logoRectWithMargin.insetBy(dx: margin, dy: margin)
         
         let logoPath: UIBezierPath
         let logoHolderPath: UIBezierPath
