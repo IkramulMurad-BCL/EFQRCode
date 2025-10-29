@@ -60,8 +60,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             logoRectWithMargin = CGRect(
                 x: size.width - logoWidth - margin - quietZonePixel,
                 y: size.height - logoHeight - margin - quietZonePixel,
-                width: logoWidth + margin,
-                height: logoHeight + margin
+                width: logoWidth + margin * 2,
+                height: logoHeight + margin * 2
             )
             logoRect = CGRect(x: logoRectWithMargin.minX + margin, y: logoRectWithMargin.minY + margin, width: logoRectWithMargin.width - margin, height: logoRectWithMargin.height - margin)
         case .center:
