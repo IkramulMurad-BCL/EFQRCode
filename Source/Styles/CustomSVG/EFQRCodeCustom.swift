@@ -57,9 +57,12 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         switch position {
         case .bottomRight:
+            let pixelSize = 1.0 / scale
+            let qzp = floor(quietZonePixel / pixelSize) * pixelSize
+
             logoRectWithMargin = CGRect(
-                x: size.width - logoWidth - margin - quietZonePixel,
-                y: size.height - logoHeight - margin - quietZonePixel,
+                x: size.width - logoWidth - margin - qzp,
+                y: size.height - logoHeight - margin - qzp,
                 width: logoWidth + margin * 2,
                 height: logoHeight + margin * 2
             )
@@ -108,12 +111,10 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             backgroundImage?.draw(in: CGRect(origin: .zero, size: size))
             
             if let logoImage {
-//                // 3️⃣ Erase logo area in QR region (to ensure visibility)
-//                context.cgContext.clear(logoRect)
-//                
-//                // Optional: fill with white or background tone
-//                context.cgContext.setFillColor(UIColor.white.cgColor)
-//                context.cgContext.fill(logoRect)
+                // Optional: fill with white or background tone
+//                context.cgContext.setFillColor(UIColor.red.cgColor)
+//                context.cgContext.addPath(logoHolderPath.cgPath)
+//                context.cgContext.fillPath()
                 
                 // 4️⃣ Draw masked QR on top
                 updatedMaskedForeground?.draw(in: CGRect(origin: .zero, size: size))
