@@ -13,7 +13,6 @@ public enum LogoStyle {
     case roundedRect
     case scanAssistRect
     case scanAssistRoundedRect
-    case none
 }
 
 public enum LogoPosition {

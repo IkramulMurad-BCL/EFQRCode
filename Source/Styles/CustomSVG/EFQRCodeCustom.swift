@@ -81,6 +81,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         let logoPath: UIBezierPath
         let logoHolderPath: UIBezierPath
+        var scanAssistFramePath: UIBezierPath? = nil
+        
         switch styleType {
         case .round:
             logoHolderPath = UIBezierPath(ovalIn: logoRectWithMargin)
@@ -88,9 +90,18 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         case .roundedRect:
             logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: logoRectWithMargin.width * 0.2)
             logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoWidth * 0.2)
-        default:
+        case .rect:
             logoHolderPath = UIBezierPath(rect: logoRectWithMargin)
             logoPath = UIBezierPath(rect: logoRect)
+        case .scanAssistRect:
+            logoHolderPath = UIBezierPath(rect: logoRectWithMargin)
+            logoPath = UIBezierPath(rect: logoRect)
+            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: 0, lineWidth: logoRectWithMargin.width * 0.08)
+        case .scanAssistRoundedRect:
+            let cornerRadius = logoRectWithMargin.width * 0.2
+            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: cornerRadius)
+            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoWidth * 0.2)
+            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: cornerRadius, lineWidth: logoRectWithMargin.width * 0.08)
         }
         
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
@@ -119,6 +130,12 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 // 4️⃣ Draw masked QR on top
                 updatedMaskedForeground?.draw(in: CGRect(origin: .zero, size: size))
                 
+                if let scanAssistFramePath = scanAssistFramePath {
+                    context.cgContext.setFillColor(UIColor.white.cgColor)
+                    context.cgContext.addPath(scanAssistFramePath.cgPath)
+                    context.cgContext.fillPath()
+                }
+                
                 // 5️⃣ Draw logo with style clipping
                 logoPath.addClip()
                 logoImage.draw(in: logoRect)
@@ -129,6 +146,57 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         return finalImage
     }
+    
+    private func createScanAssistFramePath(rect: CGRect, cornerRadius: CGFloat, lineWidth: CGFloat) -> UIBezierPath {
+        let path = UIBezierPath()
+        let cornerLength = rect.width * 0.3 // Length of each L-shape arm
+        
+        // Top Left Corner
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY + cornerLength))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + cornerRadius))
+        path.addArc(withCenter: CGPoint(x: rect.minX + cornerRadius, y: rect.minY + cornerRadius),
+                    radius: cornerRadius,
+                    startAngle: .pi,
+                    endAngle: .pi * 1.5,
+                    clockwise: true)
+        path.addLine(to: CGPoint(x: rect.minX + cornerLength, y: rect.minY))
+        
+        // Top Right Corner
+        path.move(to: CGPoint(x: rect.maxX - cornerLength, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - cornerRadius, y: rect.minY))
+        path.addArc(withCenter: CGPoint(x: rect.maxX - cornerRadius, y: rect.minY + cornerRadius),
+                    radius: cornerRadius,
+                    startAngle: .pi * 1.5,
+                    endAngle: 0,
+                    clockwise: true)
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + cornerLength))
+        
+        // Bottom Right Corner
+        path.move(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerLength))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerRadius))
+        path.addArc(withCenter: CGPoint(x: rect.maxX - cornerRadius, y: rect.maxY - cornerRadius),
+                    radius: cornerRadius,
+                    startAngle: 0,
+                    endAngle: .pi * 0.5,
+                    clockwise: true)
+        path.addLine(to: CGPoint(x: rect.maxX - cornerLength, y: rect.maxY))
+        
+        // Bottom Left Corner
+        path.move(to: CGPoint(x: rect.minX + cornerLength, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX + cornerRadius, y: rect.maxY))
+        path.addArc(withCenter: CGPoint(x: rect.minX + cornerRadius, y: rect.maxY - cornerRadius),
+                    radius: cornerRadius,
+                    startAngle: .pi * 0.5,
+                    endAngle: .pi,
+                    clockwise: true)
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - cornerLength))
+        
+        path.lineWidth = lineWidth
+        path.lineCapStyle = .square
+        
+        return path
+    }
+
         
     private func createGradientImageMatching(_ referenceImage: UIImage, startColor: UIColor, endColor: UIColor) -> UIImage {
         let logicalSize = referenceImage.size
