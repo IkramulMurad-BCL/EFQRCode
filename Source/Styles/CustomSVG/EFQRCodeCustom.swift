@@ -96,12 +96,13 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         case .scanAssistRect:
             logoHolderPath = UIBezierPath(rect: logoRectWithMargin)
             logoPath = UIBezierPath(rect: logoRect)
-            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: 0, lineWidth: logoRectWithMargin.width * 0.08)
+            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: 0, lineWidth: logoRect.width * 0.08)
         case .scanAssistRoundedRect:
-            let cornerRadius = logoRectWithMargin.width * 0.2
-            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: cornerRadius)
-            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoWidth * 0.2)
-            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: cornerRadius, lineWidth: logoRectWithMargin.width * 0.08)
+            let marginCornerRadius = logoRectWithMargin.width * 0.2
+            let logoCornerRadius = logoRect.width * 0.2
+            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: marginCornerRadius)
+            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoCornerRadius)
+            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: marginCornerRadius, lineWidth: logoRect.width * 0.08)
         }
         
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
@@ -131,9 +132,10 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 updatedMaskedForeground?.draw(in: CGRect(origin: .zero, size: size))
                 
                 if let scanAssistFramePath = scanAssistFramePath {
-                    context.cgContext.setFillColor(UIColor.white.cgColor)
+                    context.cgContext.setStrokeColor(UIColor.red.cgColor)
+                    context.cgContext.setLineWidth(scanAssistFramePath.lineWidth)
                     context.cgContext.addPath(scanAssistFramePath.cgPath)
-                    context.cgContext.fillPath()
+                    context.cgContext.strokePath()
                 }
                 
                 // 5️⃣ Draw logo with style clipping
@@ -146,53 +148,83 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         return finalImage
     }
-    
+
     private func createScanAssistFramePath(rect: CGRect, cornerRadius: CGFloat, lineWidth: CGFloat) -> UIBezierPath {
         let path = UIBezierPath()
-        let cornerLength = rect.width * 0.3 // Length of each L-shape arm
+        let cornerLength = rect.width * 0.25 // Length of each L-shape arm
         
-        // Top Left Corner
-        path.move(to: CGPoint(x: rect.minX, y: rect.minY + cornerLength))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + cornerRadius))
-        path.addArc(withCenter: CGPoint(x: rect.minX + cornerRadius, y: rect.minY + cornerRadius),
-                    radius: cornerRadius,
-                    startAngle: .pi,
-                    endAngle: .pi * 1.5,
-                    clockwise: true)
-        path.addLine(to: CGPoint(x: rect.minX + cornerLength, y: rect.minY))
+        // Adjust for line width so strokes are drawn inside the rect
+        let inset = lineWidth / 2
+        let drawingRect = rect.insetBy(dx: inset, dy: inset)
         
-        // Top Right Corner
-        path.move(to: CGPoint(x: rect.maxX - cornerLength, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX - cornerRadius, y: rect.minY))
-        path.addArc(withCenter: CGPoint(x: rect.maxX - cornerRadius, y: rect.minY + cornerRadius),
-                    radius: cornerRadius,
-                    startAngle: .pi * 1.5,
-                    endAngle: 0,
-                    clockwise: true)
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + cornerLength))
-        
-        // Bottom Right Corner
-        path.move(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerLength))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerRadius))
-        path.addArc(withCenter: CGPoint(x: rect.maxX - cornerRadius, y: rect.maxY - cornerRadius),
-                    radius: cornerRadius,
-                    startAngle: 0,
-                    endAngle: .pi * 0.5,
-                    clockwise: true)
-        path.addLine(to: CGPoint(x: rect.maxX - cornerLength, y: rect.maxY))
-        
-        // Bottom Left Corner
-        path.move(to: CGPoint(x: rect.minX + cornerLength, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX + cornerRadius, y: rect.maxY))
-        path.addArc(withCenter: CGPoint(x: rect.minX + cornerRadius, y: rect.maxY - cornerRadius),
-                    radius: cornerRadius,
-                    startAngle: .pi * 0.5,
-                    endAngle: .pi,
-                    clockwise: true)
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - cornerLength))
+        let availableRadius = min(cornerRadius, cornerLength - lineWidth)
+        let adjustedCornerRadius = min(availableRadius, drawingRect.width / 2, drawingRect.height / 2)
+        if adjustedCornerRadius > 0 {
+            // Top Left Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY + cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY + adjustedCornerRadius))
+            path.addArc(withCenter: CGPoint(x: drawingRect.minX + adjustedCornerRadius, y: drawingRect.minY + adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: .pi,
+                        endAngle: .pi * 1.5,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.minY))
+            
+            // Top Right Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX - adjustedCornerRadius, y: drawingRect.minY))
+            path.addArc(withCenter: CGPoint(x: drawingRect.maxX - adjustedCornerRadius, y: drawingRect.minY + adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: .pi * 1.5,
+                        endAngle: 0,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.minY + cornerLength))
+            
+            // Bottom Right Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY - cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY - adjustedCornerRadius))
+            path.addArc(withCenter: CGPoint(x: drawingRect.maxX - adjustedCornerRadius, y: drawingRect.maxY - adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: 0,
+                        endAngle: .pi * 0.5,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.maxY))
+            
+            // Bottom Left Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.minX + adjustedCornerRadius, y: drawingRect.maxY))
+            path.addArc(withCenter: CGPoint(x: drawingRect.minX + adjustedCornerRadius, y: drawingRect.maxY - adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: .pi * 0.5,
+                        endAngle: .pi,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.maxY - cornerLength))
+        } else {
+            // Square version (no corner radius)
+            // Top Left Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY + cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.minY))
+            
+            // Top Right Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.minY + cornerLength))
+            
+            // Bottom Right Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY - cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.maxY))
+            
+            // Bottom Left Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.maxY - cornerLength))
+        }
         
         path.lineWidth = lineWidth
         path.lineCapStyle = .square
+        path.lineJoinStyle = .miter
         
         return path
     }
