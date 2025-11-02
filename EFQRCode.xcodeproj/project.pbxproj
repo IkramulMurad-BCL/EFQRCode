@@ -141,11 +141,67 @@
 		4C256A541B096C770065714F /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C256A501B096C2C0065714F /* Tests.swift */; };
 		4CF626F91BA7CB3E0011A099 /* EFQRCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CF626EF1BA7CB3E0011A099 /* EFQRCode.framework */; };
 		4CF627141BA7CC240011A099 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C256A501B096C2C0065714F /* Tests.swift */; };
+		51E485D82EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C82EB761D000BC4FDC /* CGFloat+Operator.swift */; };
+		51E485D92EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C92EB761D000BC4FDC /* CGPath+SVGPath.swift */; };
+		51E485DA2EB761D000BC4FDC /* Dot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CA2EB761D000BC4FDC /* Dot.swift */; };
+		51E485DB2EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CB2EB761D000BC4FDC /* EFQRCodeCustom.swift */; };
+		51E485DC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift */; };
+		51E485DD2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CD2EB761D000BC4FDC /* EFStyleSVGParams.swift */; };
+		51E485DE2EB761D000BC4FDC /* Eye.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CE2EB761D000BC4FDC /* Eye.swift */; };
+		51E485DF2EB761D000BC4FDC /* Logo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CF2EB761D000BC4FDC /* Logo.swift */; };
+		51E485E02EB761D000BC4FDC /* LogoAdjustment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D02EB761D000BC4FDC /* LogoAdjustment.swift */; };
+		51E485E12EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D12EB761D000BC4FDC /* ShapeDraw+SVG.swift */; };
+		51E485E22EB761D000BC4FDC /* SVGCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D22EB761D000BC4FDC /* SVGCommand.swift */; };
+		51E485E32EB761D000BC4FDC /* SVGGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D32EB761D000BC4FDC /* SVGGradient.swift */; };
+		51E485E42EB761D000BC4FDC /* SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D42EB761D000BC4FDC /* SVGPath.swift */; };
+		51E485E52EB761D000BC4FDC /* Util+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D52EB761D000BC4FDC /* Util+SVG.swift */; };
+		51E485E62EB761D000BC4FDC /* VisualFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D62EB761D000BC4FDC /* VisualFill.swift */; };
+		51E485E72EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C82EB761D000BC4FDC /* CGFloat+Operator.swift */; };
+		51E485E82EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C92EB761D000BC4FDC /* CGPath+SVGPath.swift */; };
+		51E485E92EB761D000BC4FDC /* Dot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CA2EB761D000BC4FDC /* Dot.swift */; };
+		51E485EA2EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CB2EB761D000BC4FDC /* EFQRCodeCustom.swift */; };
+		51E485EB2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift */; };
+		51E485EC2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CD2EB761D000BC4FDC /* EFStyleSVGParams.swift */; };
+		51E485ED2EB761D000BC4FDC /* Eye.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CE2EB761D000BC4FDC /* Eye.swift */; };
+		51E485EE2EB761D000BC4FDC /* Logo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CF2EB761D000BC4FDC /* Logo.swift */; };
+		51E485EF2EB761D000BC4FDC /* LogoAdjustment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D02EB761D000BC4FDC /* LogoAdjustment.swift */; };
+		51E485F02EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D12EB761D000BC4FDC /* ShapeDraw+SVG.swift */; };
+		51E485F12EB761D000BC4FDC /* SVGCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D22EB761D000BC4FDC /* SVGCommand.swift */; };
+		51E485F22EB761D000BC4FDC /* SVGGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D32EB761D000BC4FDC /* SVGGradient.swift */; };
+		51E485F32EB761D000BC4FDC /* SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D42EB761D000BC4FDC /* SVGPath.swift */; };
+		51E485F42EB761D000BC4FDC /* Util+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D52EB761D000BC4FDC /* Util+SVG.swift */; };
+		51E485F52EB761D000BC4FDC /* VisualFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D62EB761D000BC4FDC /* VisualFill.swift */; };
+		51E485F62EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C82EB761D000BC4FDC /* CGFloat+Operator.swift */; };
+		51E485F72EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C92EB761D000BC4FDC /* CGPath+SVGPath.swift */; };
+		51E485F82EB761D000BC4FDC /* Dot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CA2EB761D000BC4FDC /* Dot.swift */; };
+		51E485F92EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CB2EB761D000BC4FDC /* EFQRCodeCustom.swift */; };
+		51E485FA2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift */; };
+		51E485FB2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CD2EB761D000BC4FDC /* EFStyleSVGParams.swift */; };
+		51E485FC2EB761D000BC4FDC /* Eye.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CE2EB761D000BC4FDC /* Eye.swift */; };
+		51E485FD2EB761D000BC4FDC /* Logo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CF2EB761D000BC4FDC /* Logo.swift */; };
+		51E485FE2EB761D000BC4FDC /* LogoAdjustment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D02EB761D000BC4FDC /* LogoAdjustment.swift */; };
+		51E485FF2EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D12EB761D000BC4FDC /* ShapeDraw+SVG.swift */; };
+		51E486002EB761D000BC4FDC /* SVGCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D22EB761D000BC4FDC /* SVGCommand.swift */; };
+		51E486012EB761D000BC4FDC /* SVGGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D32EB761D000BC4FDC /* SVGGradient.swift */; };
+		51E486022EB761D000BC4FDC /* SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D42EB761D000BC4FDC /* SVGPath.swift */; };
+		51E486032EB761D000BC4FDC /* Util+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D52EB761D000BC4FDC /* Util+SVG.swift */; };
+		51E486042EB761D000BC4FDC /* VisualFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D62EB761D000BC4FDC /* VisualFill.swift */; };
+		51E486052EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C82EB761D000BC4FDC /* CGFloat+Operator.swift */; };
+		51E486062EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C92EB761D000BC4FDC /* CGPath+SVGPath.swift */; };
+		51E486072EB761D000BC4FDC /* Dot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CA2EB761D000BC4FDC /* Dot.swift */; };
+		51E486082EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CB2EB761D000BC4FDC /* EFQRCodeCustom.swift */; };
+		51E486092EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift */; };
+		51E4860A2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CD2EB761D000BC4FDC /* EFStyleSVGParams.swift */; };
+		51E4860B2EB761D000BC4FDC /* Eye.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CE2EB761D000BC4FDC /* Eye.swift */; };
+		51E4860C2EB761D000BC4FDC /* Logo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CF2EB761D000BC4FDC /* Logo.swift */; };
+		51E4860D2EB761D000BC4FDC /* LogoAdjustment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D02EB761D000BC4FDC /* LogoAdjustment.swift */; };
+		51E4860E2EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D12EB761D000BC4FDC /* ShapeDraw+SVG.swift */; };
+		51E4860F2EB761D000BC4FDC /* SVGCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D22EB761D000BC4FDC /* SVGCommand.swift */; };
+		51E486102EB761D000BC4FDC /* SVGGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D32EB761D000BC4FDC /* SVGGradient.swift */; };
+		51E486112EB761D000BC4FDC /* SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D42EB761D000BC4FDC /* SVGPath.swift */; };
+		51E486122EB761D000BC4FDC /* Util+SVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D52EB761D000BC4FDC /* Util+SVG.swift */; };
+		51E486132EB761D000BC4FDC /* VisualFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485D62EB761D000BC4FDC /* VisualFill.swift */; };
 		8035DB621BAB492500466CB3 /* EFQRCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8111E3319A95C8B0040E7D1 /* EFQRCode.framework */; };
-		95C988272E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
-		95C988282E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
-		95C988292E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
-		95C9882A2E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */; };
 		F829C6B81A7A94F100A2CD59 /* EFQRCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DD67C0B1A5C55C900ED2280 /* EFQRCode.framework */; };
 /* End PBXBuildFile section */
 
@@ -212,9 +268,23 @@
 		4CF626EF1BA7CB3E0011A099 /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF626F81BA7CB3E0011A099 /* EFQRCode tvOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "EFQRCode tvOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DD67C0B1A5C55C900ED2280 /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		51E485C82EB761D000BC4FDC /* CGFloat+Operator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Operator.swift"; sourceTree = "<group>"; };
+		51E485C92EB761D000BC4FDC /* CGPath+SVGPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPath+SVGPath.swift"; sourceTree = "<group>"; };
+		51E485CA2EB761D000BC4FDC /* Dot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dot.swift; sourceTree = "<group>"; };
+		51E485CB2EB761D000BC4FDC /* EFQRCodeCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EFQRCodeCustom.swift; sourceTree = "<group>"; };
+		51E485CC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EFQRCodeStyleSVG.swift; sourceTree = "<group>"; };
+		51E485CD2EB761D000BC4FDC /* EFStyleSVGParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EFStyleSVGParams.swift; sourceTree = "<group>"; };
+		51E485CE2EB761D000BC4FDC /* Eye.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Eye.swift; sourceTree = "<group>"; };
+		51E485CF2EB761D000BC4FDC /* Logo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logo.swift; sourceTree = "<group>"; };
+		51E485D02EB761D000BC4FDC /* LogoAdjustment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoAdjustment.swift; sourceTree = "<group>"; };
+		51E485D12EB761D000BC4FDC /* ShapeDraw+SVG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShapeDraw+SVG.swift"; sourceTree = "<group>"; };
+		51E485D22EB761D000BC4FDC /* SVGCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVGCommand.swift; sourceTree = "<group>"; };
+		51E485D32EB761D000BC4FDC /* SVGGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVGGradient.swift; sourceTree = "<group>"; };
+		51E485D42EB761D000BC4FDC /* SVGPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVGPath.swift; sourceTree = "<group>"; };
+		51E485D52EB761D000BC4FDC /* Util+SVG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Util+SVG.swift"; sourceTree = "<group>"; };
+		51E485D62EB761D000BC4FDC /* VisualFill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualFill.swift; sourceTree = "<group>"; };
 		5282BCAD1FF38F8100DFB36B /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		72998D721BF26173006D3F69 /* Info-tvOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-tvOS.plist"; sourceTree = "<group>"; };
-		95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EFQRCodeStyleSVG.swift; sourceTree = "<group>"; };
 		D2483C94256E14C0005899D8 /* QRCodeSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QRCodeSwift.framework; path = ../swift_qrcodejs/Carthage/Build/watchOS/QRCodeSwift.framework; sourceTree = "<group>"; };
 		F8111E3319A95C8B0040E7D1 /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8111E3719A95C8B0040E7D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -314,6 +384,7 @@
 		12D66CB22A4F9F33007F2770 /* Styles */ = {
 			isa = PBXGroup;
 			children = (
+				51E485D72EB761D000BC4FDC /* CustomSVG */,
 				12D66CB32A4FA2A3007F2770 /* EFQRCodeStyle.swift */,
 				12D66CBD2A4FB7AF007F2770 /* EFQRCodeStyleBasic.swift */,
 				128013B42A5371670033B45B /* EFQRCodeStyleBubble.swift */,
@@ -325,7 +396,6 @@
 				128013AA2A52CBEF0033B45B /* EFQRCodeStyleRandomRectangle.swift */,
 				128013CD2A540A090033B45B /* EFQRCodeStyleResampleImage.swift */,
 				128013AF2A52E6640033B45B /* EFQRCodeStyle25D.swift */,
-				95C988262E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift */,
 			);
 			path = Styles;
 			sourceTree = "<group>";
@@ -356,6 +426,28 @@
 				12C3A7E42CD5627800226CD1 /* EFVideoFormat.swift */,
 			);
 			path = Type;
+			sourceTree = "<group>";
+		};
+		51E485D72EB761D000BC4FDC /* CustomSVG */ = {
+			isa = PBXGroup;
+			children = (
+				51E485C82EB761D000BC4FDC /* CGFloat+Operator.swift */,
+				51E485C92EB761D000BC4FDC /* CGPath+SVGPath.swift */,
+				51E485CA2EB761D000BC4FDC /* Dot.swift */,
+				51E485CB2EB761D000BC4FDC /* EFQRCodeCustom.swift */,
+				51E485CC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift */,
+				51E485CD2EB761D000BC4FDC /* EFStyleSVGParams.swift */,
+				51E485CE2EB761D000BC4FDC /* Eye.swift */,
+				51E485CF2EB761D000BC4FDC /* Logo.swift */,
+				51E485D02EB761D000BC4FDC /* LogoAdjustment.swift */,
+				51E485D12EB761D000BC4FDC /* ShapeDraw+SVG.swift */,
+				51E485D22EB761D000BC4FDC /* SVGCommand.swift */,
+				51E485D32EB761D000BC4FDC /* SVGGradient.swift */,
+				51E485D42EB761D000BC4FDC /* SVGPath.swift */,
+				51E485D52EB761D000BC4FDC /* Util+SVG.swift */,
+				51E485D62EB761D000BC4FDC /* VisualFill.swift */,
+			);
+			path = CustomSVG;
 			sourceTree = "<group>";
 		};
 		F8111E2919A95C8B0040E7D1 = {
@@ -750,7 +842,21 @@
 				128013B72A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CCA2A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E72CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
-				95C9882A2E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
+				51E485D82EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */,
+				51E485D92EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */,
+				51E485DA2EB761D000BC4FDC /* Dot.swift in Sources */,
+				51E485DB2EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */,
+				51E485DC2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */,
+				51E485DD2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */,
+				51E485DE2EB761D000BC4FDC /* Eye.swift in Sources */,
+				51E485DF2EB761D000BC4FDC /* Logo.swift in Sources */,
+				51E485E02EB761D000BC4FDC /* LogoAdjustment.swift in Sources */,
+				51E485E12EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */,
+				51E485E22EB761D000BC4FDC /* SVGCommand.swift in Sources */,
+				51E485E32EB761D000BC4FDC /* SVGGradient.swift in Sources */,
+				51E485E42EB761D000BC4FDC /* SVGPath.swift in Sources */,
+				51E485E52EB761D000BC4FDC /* Util+SVG.swift in Sources */,
+				51E485E62EB761D000BC4FDC /* VisualFill.swift in Sources */,
 				12297FAC2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013C12A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D152A5D558400EE18B1 /* EFQRCode.swift in Sources */,
@@ -795,7 +901,21 @@
 				128013B62A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CC92A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E62CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
-				95C988282E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
+				51E486052EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */,
+				51E486062EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */,
+				51E486072EB761D000BC4FDC /* Dot.swift in Sources */,
+				51E486082EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */,
+				51E486092EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */,
+				51E4860A2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */,
+				51E4860B2EB761D000BC4FDC /* Eye.swift in Sources */,
+				51E4860C2EB761D000BC4FDC /* Logo.swift in Sources */,
+				51E4860D2EB761D000BC4FDC /* LogoAdjustment.swift in Sources */,
+				51E4860E2EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */,
+				51E4860F2EB761D000BC4FDC /* SVGCommand.swift in Sources */,
+				51E486102EB761D000BC4FDC /* SVGGradient.swift in Sources */,
+				51E486112EB761D000BC4FDC /* SVGPath.swift in Sources */,
+				51E486122EB761D000BC4FDC /* Util+SVG.swift in Sources */,
+				51E486132EB761D000BC4FDC /* VisualFill.swift in Sources */,
 				12297FAB2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013C02A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D142A5D558400EE18B1 /* EFQRCode.swift in Sources */,
@@ -832,7 +952,21 @@
 				128013B82A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CCB2A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E82CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
-				95C988272E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
+				51E485E72EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */,
+				51E485E82EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */,
+				51E485E92EB761D000BC4FDC /* Dot.swift in Sources */,
+				51E485EA2EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */,
+				51E485EB2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */,
+				51E485EC2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */,
+				51E485ED2EB761D000BC4FDC /* Eye.swift in Sources */,
+				51E485EE2EB761D000BC4FDC /* Logo.swift in Sources */,
+				51E485EF2EB761D000BC4FDC /* LogoAdjustment.swift in Sources */,
+				51E485F02EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */,
+				51E485F12EB761D000BC4FDC /* SVGCommand.swift in Sources */,
+				51E485F22EB761D000BC4FDC /* SVGGradient.swift in Sources */,
+				51E485F32EB761D000BC4FDC /* SVGPath.swift in Sources */,
+				51E485F42EB761D000BC4FDC /* Util+SVG.swift in Sources */,
+				51E485F52EB761D000BC4FDC /* VisualFill.swift in Sources */,
 				12297FAD2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013C22A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D162A5D558400EE18B1 /* EFQRCode.swift in Sources */,
@@ -869,7 +1003,21 @@
 				128013B52A5371670033B45B /* EFQRCodeStyleBubble.swift in Sources */,
 				12D66CC82A50A167007F2770 /* Utils.swift in Sources */,
 				12C3A7E52CD5627800226CD1 /* EFVideoFormat.swift in Sources */,
-				95C988292E5AAE9200A3F027 /* EFQRCodeStyleSVG.swift in Sources */,
+				51E485F62EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */,
+				51E485F72EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */,
+				51E485F82EB761D000BC4FDC /* Dot.swift in Sources */,
+				51E485F92EB761D000BC4FDC /* EFQRCodeCustom.swift in Sources */,
+				51E485FA2EB761D000BC4FDC /* EFQRCodeStyleSVG.swift in Sources */,
+				51E485FB2EB761D000BC4FDC /* EFStyleSVGParams.swift in Sources */,
+				51E485FC2EB761D000BC4FDC /* Eye.swift in Sources */,
+				51E485FD2EB761D000BC4FDC /* Logo.swift in Sources */,
+				51E485FE2EB761D000BC4FDC /* LogoAdjustment.swift in Sources */,
+				51E485FF2EB761D000BC4FDC /* ShapeDraw+SVG.swift in Sources */,
+				51E486002EB761D000BC4FDC /* SVGCommand.swift in Sources */,
+				51E486012EB761D000BC4FDC /* SVGGradient.swift in Sources */,
+				51E486022EB761D000BC4FDC /* SVGPath.swift in Sources */,
+				51E486032EB761D000BC4FDC /* Util+SVG.swift in Sources */,
+				51E486042EB761D000BC4FDC /* VisualFill.swift in Sources */,
 				12297FAA2C90CB3600692841 /* EFEdgeInsets.swift in Sources */,
 				128013BF2A53BA6B0033B45B /* EFQRCodeStyleFunction.swift in Sources */,
 				122A6D132A5D558400EE18B1 /* EFQRCode.swift in Sources */,
