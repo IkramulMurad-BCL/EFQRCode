@@ -121,11 +121,32 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: 0, lineWidth: assistFrameWidth)
             
         case .scanAssistRoundedRect:
-            let marginCornerRadius = logoRectWithMargin.width * 0.2
-            let logoCornerRadius = logoRect.width * 0.2
-            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: marginCornerRadius)
-            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoCornerRadius)
-            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: marginCornerRadius, lineWidth: logoRect.width * 0.08)
+            switch position {
+            case .center:
+                logoRectWithMargin = CGRect(x: (size.width - logoWidth) / 2,
+                                            y: (size.height - logoHeight) / 2,
+                                            width: logoWidth,
+                                            height: logoHeight)
+            case .bottomRight:
+                let pixelSize = 1.0 / scale
+                let qzp = floor(quietZonePixel / pixelSize) * pixelSize
+                
+                logoRectWithMargin = CGRect(x: size.width - logoWidth - qzp,
+                                            y: size.height - logoHeight - qzp,
+                                            width: logoWidth,
+                                            height: logoHeight)
+            }
+            let padding = margin
+            let assistFrameWidth: CGFloat = logoRectWithMargin.width * 0.07
+            logoRect = CGRect(x: logoRectWithMargin.minX + assistFrameWidth + padding,
+                              y: logoRectWithMargin.minY + assistFrameWidth + padding,
+                              width: logoRectWithMargin.width - assistFrameWidth * 2 - padding * 2,
+                              height: logoRectWithMargin.height - assistFrameWidth * 2 - padding * 2)
+                        
+            let cornerRadius = logoRectWithMargin.width * 0.2
+            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: cornerRadius)
+            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoRect.width * 0.2)
+            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: cornerRadius, lineWidth: assistFrameWidth)
         }
         
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
