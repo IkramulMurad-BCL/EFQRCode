@@ -73,9 +73,14 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         // 3️⃣ Apply mask for foreground (QR shape)
         var maskedForeground: UIImage? = nil
         if let fg = foregroundImage {
-            maskedForeground = applyMask(qrImage: qrImage, maskImage: fg, isForeGround: true)
-            if maskedForeground == nil {
-                throw EFQRCodeError.cannotCreateUIImage
+            let freshQR = isFreshQR(foreground: params.foreground, background: params.background)
+            if freshQR {
+                maskedForeground = qrImage
+            } else {
+                maskedForeground = applyMask(qrImage: qrImage, maskImage: fg, isForeGround: true)
+                if maskedForeground == nil {
+                    throw EFQRCodeError.cannotCreateUIImage
+                }
             }
         }
         
@@ -355,6 +360,17 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         guard let cgImage = context.createCGImage(output, from: output.extent) else { return nil }
         return UIImage(cgImage: cgImage, scale: qrImage.scale, orientation: .up)
     }
+    
+    func isFreshQR(foreground: VisualFill, background: VisualFill) -> Bool {
+        guard
+            let fg = (foreground as? SolidColor)?.color,
+            let bg = (background as? SolidColor)?.color
+        else {
+            return false
+        }
+        
+        return fg.isApproximatelyBlack && bg.isApproximatelyWhite
+    }
 }
 
 // MARK: - UIColor Extension for Hex Support
@@ -375,5 +391,19 @@ extension UIColor {
             (a, r, g, b) = (255, 0, 0, 0)
         }
         self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
+    }
+}
+
+extension UIColor {
+    var isApproximatelyBlack: Bool {
+        var white: CGFloat = 0
+        getWhite(&white, alpha: nil)
+        return white < 0.1 // near black
+    }
+    
+    var isApproximatelyWhite: Bool {
+        var white: CGFloat = 0
+        getWhite(&white, alpha: nil)
+        return white > 0.9 // near white
     }
 }
