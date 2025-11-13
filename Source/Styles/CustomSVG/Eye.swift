@@ -7,8 +7,10 @@
 
 public class Eye {
     let svgString: String
+    let eyeName: String
     
-    public init(svgString: String = "") {
+    public init(svgString: String = "", eyeName: String = "") {
         self.svgString = svgString
+        self.eyeName = eyeName
     }
 }
