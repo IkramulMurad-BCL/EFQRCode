@@ -33,14 +33,26 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
 
                 switch typeTable[x][y] {
                 case .posCenter:
-                    pointList.append("<rect key=\"\(idCount)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
+                    if params.eye.svgString.isEmpty {
+                        pointList.append("<rect key=\"\(idCount)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
+                    } else {
+                        let originalEyeSVG = params.eye.svgString
+                        let eyeSVG = forceSVGToBlack(originalEyeSVG)
+                        let newTransform = "translate(\(x.cgFloat - 3), \(y.cgFloat - 3)) scale(\(7.cgFloat/160.cgFloat))"
+                        let updatedEyeSVG = replacingTransform(in: eyeSVG, with: newTransform)
+                        
+                        pointList.append(updatedEyeSVG)
+                    }
                     idCount += 1
                     
                     break
                     
                 case .posOther:
-                    pointList.append("<rect x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
-                    idCount += 1
+                    print("posOther: \(y),\(x)")
+                    if params.eye.svgString.isEmpty {
+                        pointList.append("<rect x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
+                        idCount += 1
+                    }
                     break
 
                 default:
@@ -74,6 +86,75 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
         return pointList
     }
     
+    func forceSVGToBlack(_ svg: String) -> String {
+        var result = svg
+
+//        // Replace any `fill` that is NOT white → black
+//        result = result.replacingOccurrences(
+//            of: #"fill\s*=\s*["'](?!#?[Ff]{3,6}|white|WHITE)[^"']+["']"#,
+//            with: "fill=\"#000000\"",
+//            options: .regularExpression
+//        )
+//
+//        // Replace any `stroke` that is NOT white → black
+//        result = result.replacingOccurrences(
+//            of: #"stroke\s*=\s*["'](?!#?[Ff]{3,6}|white|WHITE)[^"']+["']"#,
+//            with: "stroke=\"#000000\"",
+//            options: .regularExpression
+//        )
+//
+//        result = result.replacingOccurrences(
+//            of: #"fill-opacity\s*=\s*["'][^"']+["']"#,
+//            with: #"fill-opacity="1""#,
+//            options: .regularExpression
+//        )
+//
+//        result = result.replacingOccurrences(
+//            of: #"stroke-opacity\s*=\s*["'][^"']+["']"#,
+//            with: #"stroke-opacity="1""#,
+//            options: .regularExpression
+//        )
+
+        return result
+    }
+    
+    func replacingTransform(in svg: String, with newTransform: String) -> String {
+        var result = svg
+
+        // 1) Find the first opening <g ...> tag
+        let gOpenPattern = #"<g\b[^>]*>"#
+        guard let gRegex = try? NSRegularExpression(pattern: gOpenPattern, options: []) else {
+            return svg
+        }
+        let fullRange = NSRange(result.startIndex..., in: result)
+        guard let match = gRegex.firstMatch(in: result, options: [], range: fullRange),
+              let tagRange = Range(match.range, in: result) else {
+            return svg
+        }
+
+        var tag = String(result[tagRange])
+
+        // 2) If tag already has a transform attribute, replace it; otherwise insert one
+        let transformPattern = #"transform\s*=\s*"[^"]*""#
+        if let transRegex = try? NSRegularExpression(pattern: transformPattern, options: []) {
+            let tagNSRange = NSRange(tag.startIndex..., in: tag)
+
+            if transRegex.firstMatch(in: tag, options: [], range: tagNSRange) != nil {
+                // Replace existing transform attribute (safe - we rebuild tag string)
+                tag = transRegex.stringByReplacingMatches(in: tag, options: [], range: tagNSRange, withTemplate: #"transform="\#(newTransform)""#)
+            } else {
+                // Insert transform before closing '>'
+                if let insertIdx = tag.lastIndex(of: ">") {
+                    tag.insert(contentsOf: #" transform="\#(newTransform)""#, at: insertIdx)
+                }
+            }
+        }
+
+        // 3) Replace the original tag with the modified one
+        result.replaceSubrange(tagRange, with: tag)
+        return result
+    }
+
     func isSquareDarkAndAvailable(x: Int, y: Int, size: Int, qrcode: QRCode, available: [[Bool]], typeTable: [[QRPointType]]) -> Bool {
         for dx in 0..<size {
             for dy in 0..<size {

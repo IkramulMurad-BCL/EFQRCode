@@ -45,6 +45,7 @@ import CoreVideo
 
 import QRCodeSwift
 import SwiftDraw
+import PocketSVG
 
 public extension EFQRCode {
     
@@ -271,13 +272,57 @@ public extension EFQRCode {
          */
         private func toImage(size: CGSize, insets: UIEdgeInsets = .zero) throws -> UIImage {
             let newSvgContent: String = try checkIfNeedResize(size: size)
-            guard let svgData = newSvgContent.data(using: .utf8) else {
-                throw EFQRCodeError.text(newSvgContent, incompatibleWithEncoding: .utf8)
-            }
+//            guard let svgData = newSvgContent.data(using: .utf8) else {
+//                throw EFQRCodeError.text(newSvgContent, incompatibleWithEncoding: .utf8)
+//            }
+//            
+//            let svg = SVG(data: svgData)?.expanded(top: -insets.top, left: -insets.left, bottom: -insets.bottom, right: -insets.right)
+//            guard let image = svg?.rasterize(size: size, scale: 1) else {
+//                throw EFQRCodeError.cannotCreateUIImage
+//            }
+            let image = try createUIImageFromSVGString(newSvgContent, size: size, insets: insets)
             
-            let svg = SVG(data: svgData)?.expanded(top: -insets.top, left: -insets.left, bottom: -insets.bottom, right: -insets.right)
-            guard let image = svg?.rasterize(size: size, scale: 1) else {
-                throw EFQRCodeError.cannotCreateUIImage
+            return image
+        }
+        
+
+        func createUIImageFromSVGString(_ svgString: String, size: CGSize, insets: UIEdgeInsets = .zero) throws -> UIImage {
+//            guard let svgData = svgString.data(using: .utf8) else {
+//                throw EFQRCodeError.text(svgString, incompatibleWithEncoding: .utf8)
+//            }
+            
+            // Create SVGBezierPath from the SVG data
+            let paths = SVGBezierPath.paths(fromSVGString: svgString)
+            
+            // Calculate adjusted size with insets
+            let adjustedSize = CGSize(
+                width: size.width + insets.left + insets.right,
+                height: size.height + insets.top + insets.bottom
+            )
+            
+            // Create image context
+            let renderer = UIGraphicsImageRenderer(size: adjustedSize)
+            let image = renderer.image { context in
+                // Apply insets by translating the context
+                context.cgContext.translateBy(x: insets.left, y: insets.top)
+                
+                // Scale to fit the desired size
+                let scaleX = size.width / (paths.reduce(0) { max($0, $1.bounds.width) } )
+                let scaleY = size.height / (paths.reduce(0) { max($0, $1.bounds.height) } )
+                let scale = min(scaleX, scaleY)
+                
+                context.cgContext.scaleBy(x: scale, y: scale)
+                
+                // Draw all paths
+                for path in paths {
+                    // Set fill color (you can customize this)
+//                    UIColor.black.setFill()
+                    path.fill()
+                    
+                    // Or set stroke color if needed
+                    // UIColor.black.setStroke()
+                    // path.stroke()
+                }
             }
             
             return image
