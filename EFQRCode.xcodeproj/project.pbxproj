@@ -141,7 +141,6 @@
 		4C256A541B096C770065714F /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C256A501B096C2C0065714F /* Tests.swift */; };
 		4CF626F91BA7CB3E0011A099 /* EFQRCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CF626EF1BA7CB3E0011A099 /* EFQRCode.framework */; };
 		4CF627141BA7CC240011A099 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C256A501B096C2C0065714F /* Tests.swift */; };
-		51DE50F92EC5849A00B7053F /* PocketSVG in Frameworks */ = {isa = PBXBuildFile; productRef = 51DE50F82EC5849A00B7053F /* PocketSVG */; };
 		51E485D82EB761D000BC4FDC /* CGFloat+Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C82EB761D000BC4FDC /* CGFloat+Operator.swift */; };
 		51E485D92EB761D000BC4FDC /* CGPath+SVGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485C92EB761D000BC4FDC /* CGPath+SVGPath.swift */; };
 		51E485DA2EB761D000BC4FDC /* Dot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E485CA2EB761D000BC4FDC /* Dot.swift */; };
@@ -334,7 +333,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51DE50F92EC5849A00B7053F /* PocketSVG in Frameworks */,
 				1283C7CD2C8B33BF00462E4C /* SwiftDraw in Frameworks */,
 				122A6CC52A5C379600EE18B1 /* QRCodeSwift in Frameworks */,
 			);
@@ -663,7 +661,6 @@
 			packageProductDependencies = (
 				122A6CC42A5C379600EE18B1 /* QRCodeSwift */,
 				1283C7CC2C8B33BF00462E4C /* SwiftDraw */,
-				51DE50F82EC5849A00B7053F /* PocketSVG */,
 			);
 			productName = Alamofire;
 			productReference = F8111E3319A95C8B0040E7D1 /* EFQRCode.framework */;
@@ -762,7 +759,6 @@
 			packageReferences = (
 				122A6CC32A5C379600EE18B1 /* XCRemoteSwiftPackageReference "swift_qrcodejs" */,
 				1283C7CB2C8B33B300462E4C /* XCRemoteSwiftPackageReference "SwiftDraw" */,
-				51DE50F72EC5849A00B7053F /* XCRemoteSwiftPackageReference "PocketSVG" */,
 			);
 			productRefGroup = F8111E3419A95C8B0040E7D1 /* Products */;
 			projectDirPath = "";
@@ -1700,14 +1696,6 @@
 				version = 0.22.0;
 			};
 		};
-		51DE50F72EC5849A00B7053F /* XCRemoteSwiftPackageReference "PocketSVG" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pocketsvg/PocketSVG.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.2.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1750,11 +1738,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1283C7CB2C8B33B300462E4C /* XCRemoteSwiftPackageReference "SwiftDraw" */;
 			productName = SwiftDraw;
-		};
-		51DE50F82EC5849A00B7053F /* PocketSVG */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 51DE50F72EC5849A00B7053F /* XCRemoteSwiftPackageReference "PocketSVG" */;
-			productName = PocketSVG;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
