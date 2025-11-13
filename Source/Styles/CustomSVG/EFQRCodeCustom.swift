@@ -16,8 +16,37 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         try super.init(data, errorCorrectLevel: .h, style: style)
     }
     
+    func addEyes(to qrImage: UIImage, quietZonePixel: CGFloat, moduleCount: CGFloat, eyeName: String) -> UIImage {
+        let scale = qrImage.scale
+        let width = qrImage.size.width * scale
+        let moduleSize = (width - quietZonePixel * 2) / moduleCount
+        let eyeSize = moduleSize * 7
+        
+        let positions = [
+            CGPoint(x: quietZonePixel, y: quietZonePixel),
+            CGPoint(x: width - quietZonePixel - eyeSize, y: quietZonePixel),
+            CGPoint(x: quietZonePixel, y: width - quietZonePixel - eyeSize)
+        ]
+        
+        guard let eyeImage = UIImage(named: eyeName) else {
+            return qrImage
+        }
+        
+        let renderer = UIGraphicsImageRenderer(size: qrImage.size)
+        let result = renderer.image { ctx in
+            qrImage.draw(in: CGRect(origin: .zero, size: qrImage.size))
+            for pos in positions {
+                let rect = CGRect(x: pos.x / scale, y: pos.y / scale, width: eyeSize / scale, height: eyeSize / scale)
+                eyeImage.draw(in: rect)
+            }
+        }
+        
+        return result
+    }
+
+    
     public override func toImage(width: CGFloat, insets: UIEdgeInsets = .zero) throws -> UIImage {
-        let qrImage = try super.toImage(width: width)
+        let qrImageRaw = try super.toImage(width: width)
         
         guard let style = self.style as? EFQRCodeStyleSVG else {
             throw EFQRCodeError.cannotCreateUIImage
@@ -28,6 +57,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let quietzone = params.backdrop.quietzone ?? EFEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
         let quietZonePixel = (width / (moduleCount + quietzone.left + quietzone.right)) * quietzone.left
         
+        let qrImage = addEyes(to: qrImageRaw, quietZonePixel: quietZonePixel, moduleCount: moduleCount, eyeName: params.eye.eyeName)
         let size = qrImage.size
         let scale = qrImage.scale
         

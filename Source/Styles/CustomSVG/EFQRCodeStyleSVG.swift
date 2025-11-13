@@ -36,12 +36,12 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                     if params.eye.svgString.isEmpty {
                         pointList.append("<rect key=\"\(idCount)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
                     } else {
-                        let originalEyeSVG = params.eye.svgString
-                        let eyeSVG = forceSVGToBlack(originalEyeSVG)
-                        let newTransform = "translate(\(x.cgFloat - 3), \(y.cgFloat - 3)) scale(\(7.cgFloat/160.cgFloat))"
-                        let updatedEyeSVG = replacingTransform(in: eyeSVG, with: newTransform)
-                        
-                        pointList.append(updatedEyeSVG)
+//                        let originalEyeSVG = params.eye.svgString
+//                        let eyeSVG = forceSVGToBlack(originalEyeSVG)
+//                        let newTransform = "translate(\(x.cgFloat - 3), \(y.cgFloat - 3)) scale(\(7.cgFloat/160.cgFloat))"
+//                        let updatedEyeSVG = replacingTransform(in: eyeSVG, with: newTransform)
+//                        
+//                        pointList.append(updatedEyeSVG)
                     }
                     idCount += 1
                     
