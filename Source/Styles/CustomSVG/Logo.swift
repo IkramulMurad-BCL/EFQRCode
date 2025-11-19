@@ -63,8 +63,69 @@ public class TextLogo: Logo {
     }
     
     public func asImage(size: CGSize) -> UIImage? {
-        nil
+        guard let fillImage = visualFill.asImage(size: size, scale: 1) else { return nil }
+
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        return renderer.image { context in
+            let ctx = context.cgContext
+
+            //
+            // STEP 1 — Draw the text as a *mask* into alpha channel
+            //
+            ctx.saveGState()
+
+            // Draw black text into alpha channel (mask)
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.alignment = .center
+            paragraph.lineBreakMode = .byWordWrapping
+
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .paragraphStyle: paragraph,
+                .foregroundColor: UIColor.black   // important: mask uses alpha
+            ]
+
+            // Measure text bounds
+            let textBounds = content.boundingRect(
+                with: size,
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                attributes: attributes,
+                context: nil
+            )
+
+            let origin = CGPoint(
+                x: (size.width - textBounds.width) / 2,
+                y: (size.height - textBounds.height) / 2
+            )
+
+            let drawRect = CGRect(origin: origin, size: textBounds.size)
+
+            // Draw text into image context
+            content.draw(in: drawRect, withAttributes: attributes)
+
+            // Extract the text mask
+            let mask = ctx.makeImage()   // Alpha channel represents text shape
+
+            ctx.restoreGState()
+
+            guard let maskRef = mask else { return }
+
+            //
+            // STEP 2 — Clip the context with text mask
+            //
+            ctx.saveGState()
+            ctx.clip(to: CGRect(origin: .zero, size: size), mask: maskRef)
+
+            //
+            // STEP 3 — Draw visual fill inside the text
+            //
+            fillImage.draw(in: CGRect(origin: .zero, size: size))
+
+            ctx.restoreGState()
+        }
     }
+
     
     public func updateAdjustment(adjustment: LogoAdjustment) {
         self.adjustment = adjustment
