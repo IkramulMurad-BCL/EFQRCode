@@ -10,6 +10,7 @@ import UIKit
 public enum LogoData {
     case image(mask: ImageMask?)
     case text(content: String, font: UIFont, visualFill: VisualFill)
+    case textVisualFill(visualFill: VisualFill)
 }
 
 public protocol Logo {
@@ -43,6 +44,8 @@ public class ImageLogo: Logo {
             self.imageMask = mask
         case .text:
             // ignore text data for image logo
+            break
+        default:
             break
         }
     }
@@ -194,10 +197,13 @@ public class TextLogo: Logo {
     
     public func updateLogo(with data: LogoData) {
         switch data {
+        case .textVisualFill(let visualFill):
+            self.visualFill = visualFill
         case .text(let content, let font, let visualFill):
             self.content = content
             self.font = font
             self.visualFill = visualFill
+        
         case .image:
             // ignore image data for text logo
             break
