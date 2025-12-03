@@ -18,6 +18,7 @@ public enum AssetBasedDotGroupingStyle: String, Codable {
 
 
 public enum AssetLessDotGroupingStyle: String, Codable {
+    case none
     case horizontal
     case vertical
     case diagonalTopLeftToBottomRight
@@ -25,6 +26,7 @@ public enum AssetLessDotGroupingStyle: String, Codable {
 }
 
 public enum AssetLessDotLineCap: String, Codable {
+    case none
     case angular
     case rounded
 }
