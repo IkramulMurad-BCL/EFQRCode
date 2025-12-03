@@ -56,29 +56,30 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                     break
 
                 default:
+                    params.dot.add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, pointList: &pointList, idCount: &idCount)
                     //Normal modules, try grouping
-                    if x <= nCount - 3 && y <= nCount - 3 && isSquareDarkAndAvailable(x: x, y: y, size: 3, qrcode: qrcode, available: available, typeTable: typeTable) {
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 3, svgString: params.dot.svgString))
-                        idCount += 1
-                        for dx in 0..<3 { for dy in 0..<3 { available[x+dx][y+dy] = false } }
-                        continue
-                    }
-
-                    if x <= nCount - 2 && y <= nCount - 2 && isSquareDarkAndAvailable(x: x, y: y, size: 2, qrcode: qrcode, available: available, typeTable: typeTable) {
-                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 2, svgString: params.dot.svgString))
-                        idCount += 1
-                        for dx in 0..<2 { for dy in 0..<2 { available[x+dx][y+dy] = false } }
-                        continue
-                    }
-
-
-                    // Single module
-//                    if x == 7 {
-                        //pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
-                    pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: params.dot.svgString))
-                        idCount += 1
-                        available[x][y] = false
+//                    if x <= nCount - 3 && y <= nCount - 3 && isSquareDarkAndAvailable(x: x, y: y, size: 3, qrcode: qrcode, available: available, typeTable: typeTable) {
+//                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 3, svgString: params.dot.svgString))
+//                        idCount += 1
+//                        for dx in 0..<3 { for dy in 0..<3 { available[x+dx][y+dy] = false } }
+//                        continue
 //                    }
+//
+//                    if x <= nCount - 2 && y <= nCount - 2 && isSquareDarkAndAvailable(x: x, y: y, size: 2, qrcode: qrcode, available: available, typeTable: typeTable) {
+//                        pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 2, svgString: params.dot.svgString))
+//                        idCount += 1
+//                        for dx in 0..<2 { for dy in 0..<2 { available[x+dx][y+dy] = false } }
+//                        continue
+//                    }
+//
+//
+//                    // Single module
+////                    if x == 7 {
+//                        //pointList.append("<rect fill=\"red\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
+//                    pointList.append(drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: params.dot.svgString))
+//                        idCount += 1
+//                        available[x][y] = false
+////                    }
                 }
             }
         }
