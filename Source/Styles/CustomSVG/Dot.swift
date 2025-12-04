@@ -7,13 +7,18 @@
 
 import QRCodeSwift
 
-public enum AssetBasedDotGroupingStyle: String, Codable {
+public enum AssetBasedDotGroupingStyle: String, Codable, CaseIterable {
     case oneByOne = "1x1"
     case oneByTwo = "1x2"
     case twoByOne = "2x1"
     case twoByTwo = "2x2"
     case threeByOne = "3x1"
     case oneByThree = "1x3"
+    
+    var size: (Int, Int) {
+        let comps = self.rawValue.split(separator: "x")
+        return (Int(comps[0]) ?? 1, Int(comps[1]) ?? 1)
+    }
 }
 
 
@@ -36,16 +41,68 @@ public protocol Dot {
 }
 
 public struct AssetBased: Dot {
-    public let styles: [AssetBasedDotGroupingStyle]
-    public let svgs: [String]
+    public let styleSvgsDict: [AssetBasedDotGroupingStyle: [String]]
     
-    public init(styles: [AssetBasedDotGroupingStyle], svgs: [String]) {
-        self.styles = styles
-        self.svgs = svgs
+    public init(styleSvgsDict: [AssetBasedDotGroupingStyle : [String]]) {
+        self.styleSvgsDict = styleSvgsDict
+    }
+    
+    private func isGroupValid(
+        x: Int,
+        y: Int,
+        w: Int,
+        h: Int,
+        qrCode: QRCode,
+        available: [[Bool]],
+        typeTable: [[QRPointType]]
+    ) -> Bool {
+        for dx in 0..<w {
+            for dy in 0..<h {
+                if !qrCode.model.isDark(x+dx, y+dy) { return false }
+                if !available[x + dx][y + dy] { return false }
+                if typeTable[x + dx][y + dy] != .data { return false }
+            }
+        }
+        return true
     }
     
     public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {
+        if available[x][y] == false { return }
         
+        for style in AssetBasedDotGroupingStyle.allCases {
+            
+            let (w, h) = style.size
+            
+            // Check bounds
+            if x > nCount - w || y > nCount - h { continue }
+            
+            // Validate modules are dark, available, correct type
+            if !isGroupValid(
+                x: x, y: y,
+                w: w, h: h,
+                qrCode: qrCode,
+                available: available,
+                typeTable: typeTable
+            ) {
+                continue
+            }
+            
+            let svgArray = styleSvgsDict[style]
+            let svg = svgArray?.randomElement() ?? ""
+            
+            pointList.append(
+                drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: svg)
+            )
+            idCount += 1
+            
+            for dx in 0..<w {
+                for dy in 0..<h {
+                    available[x + dx][y + dy] = false
+                }
+            }
+            
+            break
+        }
     }
 }
 
