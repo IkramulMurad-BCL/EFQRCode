@@ -56,6 +56,8 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                     break
 
                 default:
+                    pointList.append("<rect x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\" fill=\"red\"/>")
+                    idCount += 1
                     params.dot.add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, pointList: &pointList, idCount: &idCount)
                 }
             }

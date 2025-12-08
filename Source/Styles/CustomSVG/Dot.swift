@@ -6,15 +6,17 @@
 //
 
 import QRCodeSwift
+import Foundation
 
 public enum AssetBasedDotGroupingStyle: String, Codable, CaseIterable {
-    case oneByOne = "1x1"
-    case oneByTwo = "1x2"
-    case twoByOne = "2x1"
+    case threeByThree = "3x3"
     case twoByTwo = "2x2"
     case threeByOne = "3x1"
     case oneByThree = "1x3"
-    
+    case twoByOne = "2x1"
+    case oneByTwo = "1x2"
+    case oneByOne = "1x1"
+
     var size: (Int, Int) {
         let comps = self.rawValue.split(separator: "x")
         return (Int(comps[0]) ?? 1, Int(comps[1]) ?? 1)
@@ -60,7 +62,7 @@ public struct AssetBased: Dot {
             for dy in 0..<h {
                 if !qrCode.model.isDark(x+dx, y+dy) { return false }
                 if !available[x + dx][y + dy] { return false }
-                if typeTable[x + dx][y + dy] != .data { return false }
+                //if typeTable[x + dx][y + dy] != .data { return false }
             }
         }
         return true
@@ -71,7 +73,8 @@ public struct AssetBased: Dot {
         
         for style in AssetBasedDotGroupingStyle.allCases {
             
-            let (w, h) = style.size
+//            let (w, h) = style.size
+            let (w, h) = (1, 1)
             
             // Check bounds
             if x > nCount - w || y > nCount - h { continue }
@@ -89,9 +92,13 @@ public struct AssetBased: Dot {
             
             let svgArray = styleSvgsDict[style]
             let svg = svgArray?.randomElement() ?? ""
+            guard let url = Bundle.main.url(forResource: svg, withExtension: "svg"),
+                  let svgString = try? String(contentsOf: url, encoding: .utf8) else {
+                return
+            }
             
             pointList.append(
-                drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: svg)
+                drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: svgString)
             )
             idCount += 1
             
