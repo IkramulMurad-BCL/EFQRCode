@@ -73,8 +73,7 @@ public struct AssetBased: Dot {
         
         for style in AssetBasedDotGroupingStyle.allCases {
             
-//            let (w, h) = style.size
-            let (w, h) = (1, 1)
+            let (w, h) = style.size
             
             // Check bounds
             if x > nCount - w || y > nCount - h { continue }
@@ -98,7 +97,7 @@ public struct AssetBased: Dot {
             }
             
             pointList.append(
-                drawShape(id: "\(idCount)", x: x, y: y, size: 1, svgString: svgString)
+                drawShape(id: "\(idCount)", x: x, y: y, width: w, height: h, svgString: svgString)
             )
             idCount += 1
             

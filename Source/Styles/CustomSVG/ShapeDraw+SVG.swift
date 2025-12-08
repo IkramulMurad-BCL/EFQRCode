@@ -7,13 +7,14 @@
 
 import Foundation
 
-func drawShape(id: String, x: Int, y: Int, size: Int, svgString: String) -> String {
+func drawShape(id: String, x: Int, y: Int, width: Int, height: Int, svgString: String) -> String {
     // For smaller size inside the module
-    let centerX: CGFloat = x.cgFloat + size.cgFloat / 2.0
-    let centerY: CGFloat = y.cgFloat + size.cgFloat / 2.0
+    let centerX: CGFloat = x.cgFloat + width.cgFloat / 2.0
+    let centerY: CGFloat = y.cgFloat + height.cgFloat / 2.0
     
     let shrinkFactor: CGFloat = 1.0 // 100% of cell space
-    let actualDrawingSize: CGFloat = CGFloat(size) * shrinkFactor
+    let actualDrawingWidth: CGFloat = width.cgFloat * shrinkFactor
+    let actualDrawingHeight: CGFloat = height.cgFloat * shrinkFactor
     let normalizedSize: CGFloat = 100.0
     
     guard let mainShape = extractMainShape(from: svgString) else {
@@ -22,28 +23,32 @@ func drawShape(id: String, x: Int, y: Int, size: Int, svgString: String) -> Stri
     
     if mainShape.contains("path") {
         var rawPath = ""
-        if let range = mainShape.range(of: #"d="([^"]+)""#, options: .regularExpression) {
-            let fullMatch = mainShape[range] // d="..."
-            let dValue = fullMatch.dropFirst(3).dropLast(1) // remove d=" and closing "
-            print(dValue)
-            
-            rawPath = String(dValue)
+        guard let range = mainShape.range(of: #"d="([^"]+)""#, options: .regularExpression) else {
+            return ""
         }
+        
+        let fullMatch = mainShape[range] // d="..."
+        let dValue = fullMatch.dropFirst(3).dropLast(1) // remove d=" and closing "
+        //print(dValue)
+        
+        rawPath = String(dValue)
         
         let (bbox, normalizedHeartPath) = normalizeSvgPath(rawPath, targetSize: 100)
         let cx = (bbox.minX + bbox.maxX) / 2
         let cy = (bbox.minY + bbox.maxY) / 2
         
-        let scale = actualDrawingSize / normalizedSize
+        let scaleX = actualDrawingWidth / normalizedSize
+        let scaleY = actualDrawingHeight / normalizedSize
+        
         let str = """
         <path key="\(id)"
               d="\(normalizedHeartPath)"
               stroke="black"
               stroke-width="1"
               transform="translate(\(centerX),\(centerY))
-                         scale(\(scale),\(scale)) translate(\(-cx), \(-cy))"/>
+                         scale(\(scaleX),\(scaleY)) translate(\(-cx), \(-cy))"/>
         """
-        print(str)
+        //print(str)
         return str
     } else if mainShape.contains("polygon") {
 //                centerX -= size.cgFloat / 2.0
@@ -65,16 +70,17 @@ func drawShape(id: String, x: Int, y: Int, size: Int, svgString: String) -> Stri
         let centeredPointsString = centeredPoints.map { "\($0.0),\($0.1)" }.joined(separator: " ")
         
         let normalizedSize = max(rw, rh)
-        let scale = actualDrawingSize / normalizedSize
+        let scaleX = actualDrawingWidth / normalizedSize
+        let scaleY = actualDrawingHeight / normalizedSize
         
         let transform = """
-        translate(\(centerX),\(centerY)) scale(\(scale),\(scale)) rotate(\(rotate))
+        translate(\(centerX),\(centerY)) scale(\(scaleX),\(scaleY)) rotate(\(rotate))
         """
 
         let finalPolygon = """
         <polygon points="\(centeredPointsString)" transform="\(transform)"/>
         """
-        print(finalPolygon)
+        //print(finalPolygon)
         return finalPolygon
     } else if mainShape.contains("rect") {
 //                centerX -= size.cgFloat / 2.0
@@ -88,20 +94,21 @@ func drawShape(id: String, x: Int, y: Int, size: Int, svgString: String) -> Stri
         let transformx = rectAttributes["transform"] ?? ""
         
         let rotate = extractRotate(from: transformx)
-        print("transform: \(transformx)\nrotate: \(rotate)")
+        //print("transform: \(transformx)\nrotate: \(rotate)")
         
         let (rw, rh) = rotatedBoundingBox(width: width, height: height, angleDegrees: rotate)
         let normalizedSize = max(rw, rh)
-        let scale = actualDrawingSize / normalizedSize
+        let scaleX = actualDrawingWidth / normalizedSize
+        let scaleY = actualDrawingHeight / normalizedSize
         let halfW = width / 2.0
         let halfH = height / 2.0
         let transform = """
-        translate(\(centerX),\(centerY)) scale(\(scale),\(scale)) rotate(\(rotate)) 
+        translate(\(centerX),\(centerY)) scale(\(scaleX),\(scaleY)) rotate(\(rotate)) 
         """
         let finalRect = """
         <rect x="\(-halfW)" y="\(-halfH)" width="\(width)" height="\(height)" rx="\(rx)" ry="\(ry)" transform="\(transform)"/>
         """
-        print(finalRect)
+        //print(finalRect)
         return finalRect
     } else {
 //                centerX -= size.cgFloat / 2.0
@@ -111,7 +118,8 @@ func drawShape(id: String, x: Int, y: Int, size: Int, svgString: String) -> Stri
         let cx = CGFloat(Double(attributes["cx"] ?? "0") ?? 0)
         let cy = CGFloat(Double(attributes["cy"] ?? "0") ?? 0)
         let r = CGFloat(Double(attributes["r"] ?? "0") ?? 0)
-        
+        let scaleX = actualDrawingWidth / (r * 2)
+        let scaleY = actualDrawingHeight / (r * 2)
         //use cx, cy if required, translating centerX, centerY does the job
         let str = """
                 <circle key="\(id)"
@@ -121,7 +129,7 @@ func drawShape(id: String, x: Int, y: Int, size: Int, svgString: String) -> Stri
                         stroke="black"
                         stroke-width="1"
                         transform="translate(\(centerX),\(centerY))
-                                   scale(\(actualDrawingSize / (r * 2)))"/>
+                                           scale(\(scaleX),\(scaleY))"/>
                 """
         print(str)
         return str
