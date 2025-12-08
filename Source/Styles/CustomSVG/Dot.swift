@@ -103,6 +103,8 @@ public struct AssetBased: Dot {
             
             for dx in 0..<w {
                 for dy in 0..<h {
+//                    pointList.append("<rect x=\"\(x + dx)\" y=\"\(y + dy)\" width=\"1\" height=\"1\" fill=\"red\"/>")
+//                    idCount += 1
                     available[x + dx][y + dy] = false
                 }
             }
