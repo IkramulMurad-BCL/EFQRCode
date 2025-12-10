@@ -16,7 +16,7 @@ public enum AssetBasedDotGroupingStyle: String, Codable, CaseIterable {
     case twoByOne = "2x1"
     case oneByTwo = "1x2"
     case oneByOne = "1x1"
-
+    
     var size: (Int, Int) {
         let comps = self.rawValue.split(separator: "x")
         return (Int(comps[0]) ?? 1, Int(comps[1]) ?? 1)
@@ -124,6 +124,151 @@ public struct AssetLess: Dot {
     }
     
     public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {
+        guard qrCode.model.isDark(x, y) else { return }
+        guard available[x][y] else { return }
         
+        switch groupingLogic {
+        case .none:
+            drawSingle(x: x, y: y, available: &available, pointList: &pointList, idCount: &idCount)
+            
+        case .horizontal:
+            drawHorizontal(x: x, y: y, nCount: nCount, qrCode: qrCode,
+                           available: &available, pointList: &pointList, idCount: &idCount)
+            
+        case .vertical:
+            drawVertical(x: x, y: y, nCount: nCount, qrCode: qrCode,
+                         available: &available, pointList: &pointList, idCount: &idCount)
+            
+        case .diagonalTopLeftToBottomRight:
+            drawDiagonalTLBR(x: x, y: y, nCount: nCount, qrCode: qrCode,
+                             available: &available, pointList: &pointList, idCount: &idCount)
+            
+        case .diagonalTopRightToBottomLeft:
+            drawDiagonalTRBL(x: x, y: y, nCount: nCount, qrCode: qrCode,
+                             available: &available, pointList: &pointList, idCount: &idCount)
+        }
+    }
+    
+    private func drawSingle(
+        x: Int, y: Int,
+        available: inout [[Bool]],
+        pointList: inout [String],
+        idCount: inout Int
+    ) {
+        pointList.append("<rect key=\"\(idCount)\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
+        idCount += 1
+        available[x][y] = false
+    }
+
+    private func drawHorizontal(
+        x: Int, y: Int, nCount: Int, qrCode: QRCode,
+        available: inout [[Bool]],
+        pointList: inout [String], idCount: inout Int
+    ) {
+        var length = 1
+        var nx = x + 1
+
+        while nx < nCount,
+              qrCode.model.isDark(x, y),
+              available[nx][y] {
+            length += 1
+            nx += 1
+        }
+
+        // mark consumed
+        for dx in 0..<length { available[x+dx][y] = false }
+
+        // Draw line from (x, y) to (x + length, y)
+        let cap = svgLineCap()
+        let str = """
+            <line key="\(idCount)" x1="\(x.cgFloat)" y1="\(y.cgFloat+0.5)" x2="\(x.cgFloat+length.cgFloat)" y2="\(y.cgFloat+0.5)" stroke="black" stroke-width="1" stroke-linecap="\(cap)"/>
+        """
+        pointList.append(str)
+        idCount += 1
+    }
+
+    private func drawVertical(
+        x: Int, y: Int, nCount: Int, qrCode: QRCode,
+        available: inout [[Bool]],
+        pointList: inout [String], idCount: inout Int
+    ) {
+        var length = 1
+        var ny = y + 1
+
+        while ny < nCount,
+              qrCode.model.isDark(x, y),
+              available[x][ny] {
+            length += 1
+            ny += 1
+        }
+
+        for dy in 0..<length { available[x][y+dy] = false }
+
+        let cap = svgLineCap()
+        let str = """
+            <line key="\(idCount)" x1="\(x.cgFloat+0.5)" y1="\(y.cgFloat)" x2="\(x.cgFloat+0.5)" y2="\(y.cgFloat+length.cgFloat)" stroke="black" stroke-width="1" stroke-linecap="\(cap)"/>
+        """
+        pointList.append(str)
+        idCount += 1
+    }
+
+    private func drawDiagonalTLBR(
+        x: Int, y: Int, nCount: Int, qrCode: QRCode,
+        available: inout [[Bool]],
+        pointList: inout [String], idCount: inout Int
+    ) {
+        var length = 1
+        var nx = x + 1
+        var ny = y + 1
+
+        while nx < nCount, ny < nCount,
+              qrCode.model.isDark(x, y),
+              available[nx][ny] {
+            length += 1
+            nx += 1; ny += 1
+        }
+
+        for i in 0..<length { available[x+i][y+i] = false }
+
+        let cap = svgLineCap()
+        let str = """
+            <line key="\(idCount)" x1="\(x.cgFloat+0.3)" y1="\(y.cgFloat+0.3)" x2="\(x.cgFloat+length.cgFloat-0.3)" y2="\(y.cgFloat+length.cgFloat-0.3)" stroke="black" stroke-width="1" stroke-linecap="\(cap)"/>
+        """
+        pointList.append(str)
+        idCount += 1
+    }
+
+    private func drawDiagonalTRBL(
+        x: Int, y: Int, nCount: Int, qrCode: QRCode,
+        available: inout [[Bool]],
+        pointList: inout [String], idCount: inout Int
+    ) {
+        var length = 1
+        var nx = x - 1
+        var ny = y + 1
+
+        while nx >= 0, ny < nCount,
+              qrCode.model.isDark(x, y),
+              available[nx][ny] {
+            length += 1
+            nx -= 1; ny += 1
+        }
+
+        for i in 0..<length { available[x-i][y+i] = false }
+
+        let cap = svgLineCap()
+        let str = """
+            <line key="\(idCount)" x1="\(x.cgFloat+0.7)" y1="\(y.cgFloat+0.3)" x2="\(x.cgFloat-length.cgFloat+0.7)" y2="\(y.cgFloat+length.cgFloat-0.3)" stroke="black" stroke-width="1" stroke-linecap="\(cap)"/>
+        """
+        pointList.append(str)
+        idCount += 1
+    }
+
+    private func svgLineCap() -> String {
+        switch lineCap {
+        case .none: return "butt"
+        case .angular: return "square"
+        case .rounded: return "round"
+        }
     }
 }
