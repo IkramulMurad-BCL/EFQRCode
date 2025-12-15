@@ -31,34 +31,34 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
             for x in 0..<nCount {
                 if !qrcode.model.isDark(x, y) || !available[x][y] { continue }
 
-                switch typeTable[x][y] {
-                case .posCenter:
-                    if params.eye.svgString.isEmpty {
-                        pointList.append("<rect key=\"\(idCount)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
-                    } else {
-//                        let originalEyeSVG = params.eye.svgString
-//                        let eyeSVG = forceSVGToBlack(originalEyeSVG)
-//                        let newTransform = "translate(\(x.cgFloat - 3), \(y.cgFloat - 3)) scale(\(7.cgFloat/160.cgFloat))"
-//                        let updatedEyeSVG = replacingTransform(in: eyeSVG, with: newTransform)
+//                switch typeTable[x][y] {
+//                case .posCenter:
+//                    if params.eye.svgString.isEmpty {
+//                        pointList.append("<rect key=\"\(idCount)\" width=\"3\" height=\"3\" x=\"\(x.cgFloat - 1)\" y=\"\(y.cgFloat - 1)\"/>")
+//                    } else {
+////                        let originalEyeSVG = params.eye.svgString
+////                        let eyeSVG = forceSVGToBlack(originalEyeSVG)
+////                        let newTransform = "translate(\(x.cgFloat - 3), \(y.cgFloat - 3)) scale(\(7.cgFloat/160.cgFloat))"
+////                        let updatedEyeSVG = replacingTransform(in: eyeSVG, with: newTransform)
+////
+////                        pointList.append(updatedEyeSVG)
+//                    }
+//                    idCount += 1
+//                    
+//                    break
+//                    
+//                case .posOther:
+//                    print("posOther: \(y),\(x)")
+//                    if params.eye.svgString.isEmpty {
+//                        pointList.append("<rect x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
+//                        idCount += 1
+//                    }
+//                    break
 //
-//                        pointList.append(updatedEyeSVG)
-                    }
-                    idCount += 1
-                    
-                    break
-                    
-                case .posOther:
-                    print("posOther: \(y),\(x)")
-                    if params.eye.svgString.isEmpty {
-                        pointList.append("<rect x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
-                        idCount += 1
-                    }
-                    break
-
-                default:
-                    break
-                    //params.dot.add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, pointList: &pointList, idCount: &idCount)
-                }
+//                default:
+//                    break
+//                    //params.dot.add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, pointList: &pointList, idCount: &idCount)
+//                }
             }
         }
 

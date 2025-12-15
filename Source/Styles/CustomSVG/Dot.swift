@@ -39,13 +39,33 @@ public enum AssetLessDotLineCap: String, Codable {
 
 public protocol Dot {
     func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int)
-    func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], qrImage: inout UIImage, quietZonePixel: CGFloat)
+    func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], context: QRRenderContext)
     func draw(in renderContext: QRRenderContext)
 }
 
 public struct AssetBased: Dot {
     public func draw(in renderContext: QRRenderContext) {
+        let qrcode = renderContext.qrcode
+        let nCount = Int(renderContext.moduleCount)
+        var available = Array(repeating: Array(repeating: true, count: nCount), count: nCount)
+        let typeTable = qrcode.model.getTypeTable()
         
+        for y in 0..<nCount {
+            for x in 0..<nCount {
+                if !qrcode.model.isDark(x, y) || !available[x][y] { continue }
+                
+                switch typeTable[x][y] {
+                case .posCenter:
+                    break
+                    
+                case .posOther:
+                    break
+                    
+                default:
+                    add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, context: renderContext)
+                }
+            }
+        }
     }
     
     public let styleSvgsDict: [AssetBasedDotGroupingStyle: [String]]
@@ -73,11 +93,9 @@ public struct AssetBased: Dot {
         return true
     }
     
-    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], qrImage: inout UIImage, quietZonePixel: CGFloat) {
+    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], context: QRRenderContext) {
         if available[x][y] == false { return }
         
-        UIGraphicsBeginImageContextWithOptions(qrImage.size, false, qrImage.scale)
-        qrImage.draw(in: CGRect(origin: .zero, size: qrImage.size))
         for style in AssetBasedDotGroupingStyle.allCases {
             let (w, h) = style.size
             if x > nCount - w || y > nCount - h { continue }
@@ -110,8 +128,10 @@ public struct AssetBased: Dot {
                 break
             }
 
-            let moduleSize = (qrImage.size.width * qrImage.scale - quietZonePixel * 2) / CGFloat(nCount)
-
+            let moduleSize = context.moduleSize
+            let quietZonePixel = context.quietZonePixel
+            let scale = context.scale
+            
             let pixelX = quietZonePixel + CGFloat(x) * moduleSize
             let pixelY = quietZonePixel + CGFloat(y) * moduleSize
 
@@ -119,18 +139,16 @@ public struct AssetBased: Dot {
             let dotHeight = CGFloat(h) * moduleSize
 
             let drawRect = CGRect(
-                x: pixelX / qrImage.scale,
-                y: pixelY / qrImage.scale,
-                width: dotWidth / qrImage.scale,
-                height: dotHeight / qrImage.scale
+                x: pixelX / scale,
+                y: pixelY / scale,
+                width: dotWidth / scale,
+                height: dotHeight / scale
             )
 
             
             dotImage.draw(in: drawRect)
             break
         }
-        qrImage = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
     }
     
     public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {
@@ -182,6 +200,10 @@ public struct AssetBased: Dot {
 }
 
 public struct AssetLess: Dot {
+    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCodeSwift.QRCode, available: inout [[Bool]], typeTable: [[QRCodeSwift.QRPointType]], context: QRRenderContext) {
+        
+    }
+    
     public func draw(in renderContext: QRRenderContext) {
         
     }
@@ -192,10 +214,6 @@ public struct AssetLess: Dot {
     public init(groupingLogic: AssetLessDotGroupingStyle, lineCap: AssetLessDotLineCap) {
         self.groupingLogic = groupingLogic
         self.lineCap = lineCap
-    }
-    
-    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], qrImage: inout UIImage, quietZonePixel: CGFloat) {
-        
     }
     
     public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {
