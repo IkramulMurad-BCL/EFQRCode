@@ -88,16 +88,23 @@ public struct AssetBased: Dot {
             ) {
                 continue
             }
+            for dx in 0..<w {
+                for dy in 0..<h {
+                    available[x + dx][y + dy] = false
+                }
+            }
             
             guard let webpArray = styleSvgsDict[style] else {
-                return
+                break
             }
+            
             let webp = webpArray.randomElement() ?? ""
             guard
-                let data = NSData(contentsOfFile: webp),
+                let webpUrl = Bundle.main.url(forResource: webp, withExtension: "webp"),
+                let data = NSData(contentsOf: webpUrl),
                 let dotImage = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
             else {
-                return
+                break
             }
 
             let moduleSize = (qrImage.size.width * qrImage.scale - quietZonePixel * 2) / CGFloat(nCount)
@@ -117,6 +124,7 @@ public struct AssetBased: Dot {
 
             
             dotImage.draw(in: drawRect)
+            break
         }
         qrImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()

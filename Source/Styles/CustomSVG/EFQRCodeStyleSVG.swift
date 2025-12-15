@@ -40,7 +40,7 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
 //                        let eyeSVG = forceSVGToBlack(originalEyeSVG)
 //                        let newTransform = "translate(\(x.cgFloat - 3), \(y.cgFloat - 3)) scale(\(7.cgFloat/160.cgFloat))"
 //                        let updatedEyeSVG = replacingTransform(in: eyeSVG, with: newTransform)
-//                        
+//
 //                        pointList.append(updatedEyeSVG)
                     }
                     idCount += 1
@@ -56,7 +56,8 @@ public class EFQRCodeStyleSVG: EFQRCodeStyleBase {
                     break
 
                 default:
-                    params.dot.add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, pointList: &pointList, idCount: &idCount)
+                    break
+                    //params.dot.add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, pointList: &pointList, idCount: &idCount)
                 }
             }
         }
