@@ -7,6 +7,7 @@
 
 import QRCodeSwift
 import Foundation
+import SDWebImageWebPCoder
 
 public enum AssetBasedDotGroupingStyle: String, Codable, CaseIterable {
     case threeByThree = "3x3"
@@ -40,6 +41,7 @@ public enum AssetLessDotLineCap: String, Codable {
 
 public protocol Dot {
     func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int)
+    func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], qrImage: inout UIImage, quietZonePixel: CGFloat)
 }
 
 public struct AssetBased: Dot {
@@ -68,6 +70,58 @@ public struct AssetBased: Dot {
         return true
     }
     
+    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], qrImage: inout UIImage, quietZonePixel: CGFloat) {
+        if available[x][y] == false { return }
+        
+        UIGraphicsBeginImageContextWithOptions(qrImage.size, false, qrImage.scale)
+        qrImage.draw(in: CGRect(origin: .zero, size: qrImage.size))
+        for style in AssetBasedDotGroupingStyle.allCases {
+            let (w, h) = style.size
+            if x > nCount - w || y > nCount - h { continue }
+            
+            if !isGroupValid(
+                x: x, y: y,
+                w: w, h: h,
+                qrCode: qrCode,
+                available: available,
+                typeTable: typeTable
+            ) {
+                continue
+            }
+            
+            guard let webpArray = styleSvgsDict[style] else {
+                return
+            }
+            let webp = webpArray.randomElement() ?? ""
+            guard
+                let data = NSData(contentsOfFile: webp),
+                let dotImage = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
+            else {
+                return
+            }
+
+            let moduleSize = (qrImage.size.width * qrImage.scale - quietZonePixel * 2) / CGFloat(nCount)
+
+            let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+            let pixelY = quietZonePixel + CGFloat(y) * moduleSize
+
+            let dotWidth = CGFloat(w) * moduleSize
+            let dotHeight = CGFloat(h) * moduleSize
+
+            let drawRect = CGRect(
+                x: pixelX / qrImage.scale,
+                y: pixelY / qrImage.scale,
+                width: dotWidth / qrImage.scale,
+                height: dotHeight / qrImage.scale
+            )
+
+            
+            dotImage.draw(in: drawRect)
+        }
+        qrImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+    }
+    
     public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {
         if available[x][y] == false { return }
         
@@ -89,8 +143,10 @@ public struct AssetBased: Dot {
                 continue
             }
             
-            let svgArray = styleSvgsDict[style]
-            let svg = svgArray?.randomElement() ?? ""
+            guard let svgArray = styleSvgsDict[style] else {
+                return
+            }
+            let svg = svgArray.randomElement() ?? ""
             guard let url = Bundle.main.url(forResource: svg, withExtension: "svg"),
                   let svgString = try? String(contentsOf: url, encoding: .utf8) else {
                 return
@@ -121,6 +177,10 @@ public struct AssetLess: Dot {
     public init(groupingLogic: AssetLessDotGroupingStyle, lineCap: AssetLessDotLineCap) {
         self.groupingLogic = groupingLogic
         self.lineCap = lineCap
+    }
+    
+    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], qrImage: inout UIImage, quietZonePixel: CGFloat) {
+        
     }
     
     public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {

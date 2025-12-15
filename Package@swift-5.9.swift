@@ -40,6 +40,10 @@ let package = Package(
         .library(name: "EFQRCode", targets: ["EFQRCode"])
     ],
     dependencies: [
+        .package(url: "https://github.com/SDWebImage/SDWebImage.git",
+            .upToNextMinor(from: "5.21.5")),
+        .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder.git",
+            .upToNextMinor(from: "0.15.0")),
         .package(url: "https://github.com/EFPrefix/swift_qrcodejs.git",
                  .upToNextMinor(from: "2.3.1")),
         .package(url: "https://github.com/swhitty/SwiftDraw.git", 
@@ -49,7 +53,9 @@ let package = Package(
         .target(name: "EFQRCode",
                 dependencies: [
                     .product(name: "QRCodeSwift", package: "swift_qrcodejs"),
-                    "SwiftDraw"
+                    "SwiftDraw",
+                    .product(name: "SDWebImage", package: "SDWebImage"),
+                    .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
                 ],
                 path: "Source",
                 exclude: ["Info.plist", "Info-tvOS.plist"],
