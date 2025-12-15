@@ -6,8 +6,22 @@
 //
 
 import UIKit
+import QRCodeSwift
 
 // MARK: - Gradient Style Configuration
+public struct QRRenderContext {
+    let context: CGContext
+    let size: CGSize
+    let scale: CGFloat
+    
+    let moduleCount: CGFloat
+    let moduleSize: CGFloat
+    let quietZonePixel: CGFloat
+    
+    let qrImage: UIImage
+    let qrcode: QRCode
+}
+
 public class EFQRCodeCustomGenerator: EFQRCode.Generator {
     public init(content: String, style: EFQRCodeStyle) throws {
         guard let data = content.data(using: .utf8) else {
@@ -16,33 +30,33 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         try super.init(data, errorCorrectLevel: .h, style: style)
     }
     
-    func addEyes(to qrImage: UIImage, quietZonePixel: CGFloat, moduleCount: CGFloat, eyeName: String) -> UIImage {
-        let scale = qrImage.scale
-        let width = qrImage.size.width * scale
-        let moduleSize = (width - quietZonePixel * 2) / moduleCount
-        let eyeSize = moduleSize * 7
-        
-        let positions = [
-            CGPoint(x: quietZonePixel, y: quietZonePixel),
-            CGPoint(x: width - quietZonePixel - eyeSize, y: quietZonePixel),
-            CGPoint(x: quietZonePixel, y: width - quietZonePixel - eyeSize)
-        ]
-        
-        guard let eyeImage = UIImage(named: eyeName) else {
-            return qrImage
-        }
-        
-        let renderer = UIGraphicsImageRenderer(size: qrImage.size)
-        let result = renderer.image { ctx in
-            qrImage.draw(in: CGRect(origin: .zero, size: qrImage.size))
-            for pos in positions {
-                let rect = CGRect(x: pos.x / scale, y: pos.y / scale, width: eyeSize / scale, height: eyeSize / scale)
-                eyeImage.draw(in: rect)
-            }
-        }
-        
-        return result
-    }
+//    func addEyes(to qrImage: UIImage, quietZonePixel: CGFloat, moduleCount: CGFloat, eyeName: String) -> UIImage {
+//        let scale = qrImage.scale
+//        let width = qrImage.size.width * scale
+//        let moduleSize = (width - quietZonePixel * 2) / moduleCount
+//        let eyeSize = moduleSize * 7
+//        
+//        let positions = [
+//            CGPoint(x: quietZonePixel, y: quietZonePixel),
+//            CGPoint(x: width - quietZonePixel - eyeSize, y: quietZonePixel),
+//            CGPoint(x: quietZonePixel, y: width - quietZonePixel - eyeSize)
+//        ]
+//        
+//        guard let eyeImage = UIImage(named: eyeName) else {
+//            return qrImage
+//        }
+//        
+//        let renderer = UIGraphicsImageRenderer(size: qrImage.size)
+//        let result = renderer.image { ctx in
+//            qrImage.draw(in: CGRect(origin: .zero, size: qrImage.size))
+//            for pos in positions {
+//                let rect = CGRect(x: pos.x / scale, y: pos.y / scale, width: eyeSize / scale, height: eyeSize / scale)
+//                eyeImage.draw(in: rect)
+//            }
+//        }
+//        
+//        return result
+//    }
 
     func addDots(using params: EFStyleSVGParams, qrImage: inout UIImage, quietZonePixel: CGFloat) {
         let nCount = qrcode.model.moduleCount
@@ -75,17 +89,40 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         }
         let params = style.params
     
+        let size = qrImageRaw.size
+        let scale = qrImageRaw.scale
         
         let moduleCount = CGFloat(qrcode.model.moduleCount)
         let quietzone = params.backdrop.quietzone ?? EFEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
         let quietZonePixel = (width / (moduleCount + quietzone.left + quietzone.right)) * quietzone.left
+        let width = size.width * scale
+        let moduleSize = (width - quietZonePixel * 2) / moduleCount
         
-        var qrImage = addEyes(to: qrImageRaw, quietZonePixel: quietZonePixel, moduleCount: moduleCount, eyeName: params.eye.eyeName)
-        
-        addDots(using: params, qrImage: &qrImage, quietZonePixel: quietZonePixel)
-        
-        let size = qrImage.size
-        let scale = qrImage.scale
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let qrImage = UIGraphicsImageRenderer(size: size, format: format).image { rendererCtx in
+            let context = rendererCtx.cgContext
+            
+            let renderContext = QRRenderContext(
+                context: context,
+                size: size,
+                scale: scale,
+                moduleCount: CGFloat(qrcode.model.moduleCount),
+                moduleSize: moduleSize,
+                quietZonePixel: quietZonePixel,
+                qrImage: qrImageRaw,
+                qrcode: qrcode
+            )
+            
+//            background.drawBackground(in: renderContext)
+//            foreground.drawForeground(in: renderContext)
+            
+            params.eye.draw(in: renderContext)
+            params.dot.draw(in: renderContext)
+            
+//            logo.clearQR(in: renderContext)
+//            logo.draw(in: renderContext)
+        }
         
         let backgroundImage = params.background.asImage(size: size, scale: scale)
         let foregroundImage = params.foreground.asImage(size: size, scale: scale)
@@ -222,8 +259,6 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         UIGraphicsEndImageContext()
         
         // 4️⃣ Composite all layers
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = scale
         let finalImage = UIGraphicsImageRenderer(size: size, format: format).image { context in
             backgroundImage?.draw(in: CGRect(origin: .zero, size: size))
             

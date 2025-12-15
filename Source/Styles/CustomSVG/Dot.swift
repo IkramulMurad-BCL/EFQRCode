@@ -29,8 +29,6 @@ public enum AssetLessDotGroupingStyle: String, Codable {
     case none
     case horizontal
     case vertical
-    case diagonalTopLeftToBottomRight
-    case diagonalTopRightToBottomLeft
 }
 
 public enum AssetLessDotLineCap: String, Codable {
@@ -42,9 +40,14 @@ public enum AssetLessDotLineCap: String, Codable {
 public protocol Dot {
     func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int)
     func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], qrImage: inout UIImage, quietZonePixel: CGFloat)
+    func draw(in renderContext: QRRenderContext)
 }
 
 public struct AssetBased: Dot {
+    public func draw(in renderContext: QRRenderContext) {
+        
+    }
+    
     public let styleSvgsDict: [AssetBasedDotGroupingStyle: [String]]
     
     public init(styleSvgsDict: [AssetBasedDotGroupingStyle : [String]]) {
@@ -179,6 +182,10 @@ public struct AssetBased: Dot {
 }
 
 public struct AssetLess: Dot {
+    public func draw(in renderContext: QRRenderContext) {
+        
+    }
+    
     public let groupingLogic: AssetLessDotGroupingStyle
     public let lineCap: AssetLessDotLineCap
     
@@ -206,14 +213,6 @@ public struct AssetLess: Dot {
         case .vertical:
             drawVertical(x: x, y: y, nCount: nCount, qrCode: qrCode,
                          available: &available, pointList: &pointList, idCount: &idCount)
-            
-        case .diagonalTopLeftToBottomRight:
-            drawDiagonalTLBR(x: x, y: y, nCount: nCount, qrCode: qrCode,
-                             available: &available, pointList: &pointList, idCount: &idCount)
-            
-        case .diagonalTopRightToBottomLeft:
-            drawDiagonalTRBL(x: x, y: y, nCount: nCount, qrCode: qrCode,
-                             available: &available, pointList: &pointList, idCount: &idCount)
         }
     }
     
@@ -320,58 +319,6 @@ public struct AssetLess: Dot {
         }
         
         pointList.append(svg)
-        idCount += 1
-    }
-
-    private func drawDiagonalTLBR(
-        x: Int, y: Int, nCount: Int, qrCode: QRCode,
-        available: inout [[Bool]],
-        pointList: inout [String], idCount: inout Int
-    ) {
-        var length = 1
-        var nx = x + 1
-        var ny = y + 1
-
-        while nx < nCount, ny < nCount,
-              qrCode.model.isDark(nx, ny),
-              available[nx][ny] {
-            length += 1
-            nx += 1; ny += 1
-        }
-
-        for i in 0..<length { available[x+i][y+i] = false }
-
-//        let cap = svgLineCap()
-//        let str = """
-//            <line key="\(idCount)" x1="\(x.cgFloat+0.3)" y1="\(y.cgFloat+0.3)" x2="\(x.cgFloat+length.cgFloat-0.3)" y2="\(y.cgFloat+length.cgFloat-0.3)" stroke="black" stroke-width="1" stroke-linecap="\(cap)"/>
-//        """
-//        pointList.append(str)
-        idCount += 1
-    }
-
-    private func drawDiagonalTRBL(
-        x: Int, y: Int, nCount: Int, qrCode: QRCode,
-        available: inout [[Bool]],
-        pointList: inout [String], idCount: inout Int
-    ) {
-        var length = 1
-        var nx = x - 1
-        var ny = y + 1
-
-        while nx >= 0, ny < nCount,
-              qrCode.model.isDark(nx, ny),
-              available[nx][ny] {
-            length += 1
-            nx -= 1; ny += 1
-        }
-
-        for i in 0..<length { available[x-i][y+i] = false }
-
-//        let cap = svgLineCap()
-//        let str = """
-//            <line key="\(idCount)" x1="\(x.cgFloat+0.7)" y1="\(y.cgFloat+0.3)" x2="\(x.cgFloat-length.cgFloat+0.7)" y2="\(y.cgFloat+length.cgFloat-0.3)" stroke="black" stroke-width="1" stroke-linecap="\(cap)"/>
-//        """
-//        pointList.append(str)
         idCount += 1
     }
 
