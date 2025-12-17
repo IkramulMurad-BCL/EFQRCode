@@ -38,12 +38,13 @@ public enum AssetLessDotLineCap: String, Codable {
 }
 
 public protocol Dot {
-    func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int)
     func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], context: QRRenderContext)
     func draw(in renderContext: QRRenderContext)
 }
 
-public struct AssetBased: Dot {
+public class AssetBased: Dot {
+    private var imageCache: [String: UIImage] = [:]
+
     public func draw(in renderContext: QRRenderContext) {
         let qrcode = renderContext.qrcode
         let nCount = Int(renderContext.moduleCount)
@@ -93,8 +94,29 @@ public struct AssetBased: Dot {
         return true
     }
     
+    private func cachedDotImage(named name: String) -> UIImage? {
+        if let img = imageCache[name] {
+            return img
+        }
+
+        guard
+            let url = Bundle.main.url(forResource: name, withExtension: "webp"),
+            let data = NSData(contentsOf: url),
+            let image = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
+        else {
+            return nil
+        }
+
+        imageCache[name] = image
+        return image
+    }
+    
     public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], context: QRRenderContext) {
-        if available[x][y] == false { return }
+        guard available[x][y] else { return }
+
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
         
         for style in AssetBasedDotGroupingStyle.allCases {
             let (w, h) = style.size
@@ -109,28 +131,20 @@ public struct AssetBased: Dot {
             ) {
                 continue
             }
+            
+            guard
+                let names = styleSvgsDict[style],
+                let name = names.randomElement(),
+                let dotImage = cachedDotImage(named: name)
+            else {
+                break
+            }
+            
             for dx in 0..<w {
                 for dy in 0..<h {
                     available[x + dx][y + dy] = false
                 }
             }
-            
-            guard let webpArray = styleSvgsDict[style] else {
-                break
-            }
-            
-            let webp = webpArray.randomElement() ?? ""
-            guard
-                let webpUrl = Bundle.main.url(forResource: webp, withExtension: "webp"),
-                let data = NSData(contentsOf: webpUrl),
-                let dotImage = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
-            else {
-                break
-            }
-
-            let moduleSize = context.moduleSize
-            let quietZonePixel = context.quietZonePixel
-            let scale = context.scale
             
             let pixelX = quietZonePixel + CGFloat(x) * moduleSize
             let pixelY = quietZonePixel + CGFloat(y) * moduleSize
@@ -145,55 +159,7 @@ public struct AssetBased: Dot {
                 height: dotHeight / scale
             )
 
-            
             dotImage.draw(in: drawRect)
-            break
-        }
-    }
-    
-    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {
-        if available[x][y] == false { return }
-        
-        for style in AssetBasedDotGroupingStyle.allCases {
-            
-            let (w, h) = style.size
-            
-            // Check bounds
-            if x > nCount - w || y > nCount - h { continue }
-            
-            // Validate modules are dark, available, correct type
-            if !isGroupValid(
-                x: x, y: y,
-                w: w, h: h,
-                qrCode: qrCode,
-                available: available,
-                typeTable: typeTable
-            ) {
-                continue
-            }
-            
-            guard let svgArray = styleSvgsDict[style] else {
-                return
-            }
-            let svg = svgArray.randomElement() ?? ""
-            guard let url = Bundle.main.url(forResource: svg, withExtension: "svg"),
-                  let svgString = try? String(contentsOf: url, encoding: .utf8) else {
-                return
-            }
-            
-            pointList.append(
-                drawShape(id: "\(idCount)", x: x, y: y, width: w, height: h, svgString: svgString)
-            )
-            idCount += 1
-            
-            for dx in 0..<w {
-                for dy in 0..<h {
-//                    pointList.append("<rect x=\"\(x + dx)\" y=\"\(y + dy)\" width=\"1\" height=\"1\" fill=\"red\"/>")
-//                    idCount += 1
-                    available[x + dx][y + dy] = false
-                }
-            }
-            
             break
         }
     }
