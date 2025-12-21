@@ -31,15 +31,15 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
     }
     
     public override func toImage(width: CGFloat, insets: UIEdgeInsets = .zero) throws -> UIImage {
-        let qrImageRaw = try super.toImage(width: width)
+        let qrImageEmpty = try super.toImage(width: width)
         
         guard let style = self.style as? EFQRCodeStyleSVG else {
             throw EFQRCodeError.cannotCreateUIImage
         }
         let params = style.params
     
-        let size = qrImageRaw.size
-        let scale = qrImageRaw.scale
+        let size = qrImageEmpty.size
+        let scale = qrImageEmpty.scale
         
         let moduleCount = CGFloat(qrcode.model.moduleCount)
         let quietzone = params.backdrop.quietzone ?? EFEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
@@ -47,8 +47,39 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let width = size.width * scale
         let moduleSize = (width - quietZonePixel * 2) / moduleCount
         
+        //*******************************************************************//
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        
+        // Step 0: Generate raw QR image (white canvas + eyes + dots)
+        let qrImageRaw = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+            let context = ctx.cgContext
+            context.setFillColor(UIColor.white.cgColor)
+            context.fill(CGRect(origin: .zero, size: size))
+            
+            let renderContext = QRRenderContext(
+                context: context,
+                size: size,
+                scale: scale,
+                moduleCount: CGFloat(qrcode.model.moduleCount),
+                moduleSize: moduleSize,
+                quietZonePixel: quietZonePixel,
+                qrImage: qrImageEmpty,
+                qrcode: qrcode
+            )
+            
+            params.eye.draw(in: renderContext)
+            params.dot.draw(in: renderContext)
+        }
+        
+        // Step 0.1
+        var (logoRect, logoRectWithMargin) = params.logo.logoRect(using: size, scale: scale, quietZonePixel: quietZonePixel)
+        let (logoPath, logoHolderPath, scanAssistFramePath) = params.logo.logoPath(using: &logoRect, logoRectWithMargin: &logoRectWithMargin, size: size, scale: scale, quietZonePixel: quietZonePixel)
+        let logoImage = params.logo.asImage(size: CGSize(width: 100, height: 100))
+        
         let backgroundImage = params.background.asImage(size: size, scale: scale)
         let foregroundImage = params.foreground.asImage(size: size, scale: scale)
+        
         var maskedForeground: UIImage? = nil
         if let fg = foregroundImage {
             let freshQR = isFreshQR(foreground: params.foreground, background: params.background)
@@ -62,10 +93,6 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             }
         }
         
-        var (logoRect, logoRectWithMargin) = params.logo.logoRect(using: size, scale: scale, quietZonePixel: quietZonePixel)
-        let (logoPath, logoHolderPath, scanAssistFramePath) = params.logo.logoPath(using: &logoRect, logoRectWithMargin: &logoRectWithMargin, size: size, scale: scale, quietZonePixel: quietZonePixel)
-        let logoImage = params.logo.asImage(size: CGSize(width: 100, height: 100))
-        
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
         let fgContext = UIGraphicsGetCurrentContext()!
@@ -76,54 +103,41 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         fgContext.setBlendMode(.normal)
         let updatedMaskedForeground = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
+        
 
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = scale
-        let qrImage = UIGraphicsImageRenderer(size: size, format: format).image { rendererCtx in
-            let context = rendererCtx.cgContext
-            
-            let renderContext = QRRenderContext(
-                context: context,
-                size: size,
-                scale: scale,
-                moduleCount: CGFloat(qrcode.model.moduleCount),
-                moduleSize: moduleSize,
-                quietZonePixel: quietZonePixel,
-                qrImage: qrImageRaw,
-                qrcode: qrcode
-            )
-            
-            backgroundImage?.draw(in: CGRect(origin: .zero, size: size))
-//            foreground.drawForeground(in: renderContext)
-            
-            params.eye.draw(in: renderContext)
-            params.dot.draw(in: renderContext)
-            
-            if let logoImage {
-                // Optional: fill with white or background tone
-//                context.cgContext.setFillColor(UIColor.red.cgColor)
-//                context.cgContext.addPath(logoHolderPath.cgPath)
-//                context.cgContext.fillPath()
-                
-                // 4️⃣ Draw masked QR on top
-                updatedMaskedForeground?.draw(in: CGRect(origin: .zero, size: size))
-                
-                if let scanAssistFramePath = scanAssistFramePath {
-                    context.setStrokeColor(UIColor.red.cgColor)
-                    context.setLineWidth(scanAssistFramePath.lineWidth)
-                    context.addPath(scanAssistFramePath.cgPath)
-                    context.strokePath()
-                }
-                
-                // 5️⃣ Draw logo with style clipping
-                logoPath.addClip()
-                logoImage.draw(in: logoRect)
+        // Step 1: Main renderer (single pass)
+        let finalQRImage = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+            let context = ctx.cgContext
+            let rect = CGRect(origin: .zero, size: size)
+
+            // 1️⃣ Background
+            backgroundImage?.draw(in: rect)
+
+            // 2️⃣ Mask foreground with raw QR image
+            if logoImage != nil {
+                updatedMaskedForeground?.draw(in: rect)
             } else {
-                maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
+                maskedForeground?.draw(in: rect)
+            }
+
+            // 4️⃣ Draw scan assist frame (optional)
+            if let scanAssistFramePath {
+                context.setStrokeColor(UIColor.red.cgColor)
+                context.setLineWidth(scanAssistFramePath.lineWidth)
+                context.addPath(scanAssistFramePath.cgPath)
+                context.strokePath()
+            }
+
+            // 5️⃣ Draw logo
+            if logoImage != nil {
+                context.saveGState()
+                logoPath.addClip()
+                logoImage?.draw(in: logoRect)
+                context.restoreGState()
             }
         }
         
-        return qrImage
+        return finalQRImage
     }
 
     func applyMask(qrImage: UIImage, maskImage: UIImage, isForeGround: Bool = true) -> UIImage? {
@@ -145,6 +159,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         ])
 
         let context = CIContext()
+        
         guard let cgImage = context.createCGImage(output, from: output.extent) else { return nil }
         return UIImage(cgImage: cgImage, scale: qrImage.scale, orientation: .up)
     }
