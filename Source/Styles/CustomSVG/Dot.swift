@@ -69,10 +69,10 @@ public class AssetBased: Dot {
         }
     }
     
-    public let styleSvgsDict: [AssetBasedDotGroupingStyle: [String]]
+    public let styleWebpNamesDict: [AssetBasedDotGroupingStyle: [String]]
     
-    public init(styleSvgsDict: [AssetBasedDotGroupingStyle : [String]]) {
-        self.styleSvgsDict = styleSvgsDict
+    public init(styleWebpNamesDict: [AssetBasedDotGroupingStyle : [String]]) {
+        self.styleWebpNamesDict = styleWebpNamesDict
     }
     
     private func isGroupValid(
@@ -133,7 +133,7 @@ public class AssetBased: Dot {
             }
             
             guard
-                let names = styleSvgsDict[style],
+                let names = styleWebpNamesDict[style],
                 let name = names.randomElement(),
                 let dotImage = cachedDotImage(named: name)
             else {

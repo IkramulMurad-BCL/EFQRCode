@@ -19,6 +19,209 @@ public protocol Logo {
     
     func updateLogo(with data: LogoData)
     func updateAdjustment(adjustment: LogoAdjustment)
+    
+    func logoRect(using size: CGSize, scale: CGFloat, quietZonePixel: CGFloat) -> (CGRect, CGRect)
+    func logoPath(using logoRect: inout CGRect, logoRectWithMargin: inout CGRect, size: CGSize, scale: CGFloat, quietZonePixel: CGFloat) -> (UIBezierPath, UIBezierPath, UIBezierPath?)
+}
+
+public extension Logo {
+    func logoRect(using size: CGSize, scale: CGFloat = 1.0, quietZonePixel: CGFloat) -> (CGRect, CGRect) {
+        let sizeFactor = adjustment.size
+        let marginFactor = adjustment.margin
+        
+        let logoWidth = size.width * sizeFactor
+        let logoHeight = logoWidth
+        let margin = size.width * marginFactor
+        var logoRectWithMargin: CGRect
+        var logoRect: CGRect
+        
+        switch adjustment.position {
+        case .bottomRight:
+            let pixelSize = 1.0 / scale
+            let qzp = floor(quietZonePixel / pixelSize) * pixelSize
+
+            logoRectWithMargin = CGRect(
+                x: size.width - logoWidth - margin - qzp,
+                y: size.height - logoHeight - margin - qzp,
+                width: logoWidth + margin * 2,
+                height: logoHeight + margin * 2
+            )
+            logoRect = CGRect(x: logoRectWithMargin.minX + margin, y: logoRectWithMargin.minY + margin, width: logoWidth, height: logoWidth)
+        case .center:
+            fallthrough
+        default:
+            logoRectWithMargin = CGRect(
+                x: (size.width - logoWidth) / 2 - margin,
+                y: (size.height - logoHeight) / 2 - margin,
+                width: logoWidth + margin * 2,
+                height: logoHeight + margin * 2
+            )
+            logoRect = logoRectWithMargin.insetBy(dx: margin, dy: margin)
+        }
+        
+        return (logoRect, logoRectWithMargin)
+    }
+    
+    func logoPath(using logoRect: inout CGRect, logoRectWithMargin: inout CGRect, size: CGSize, scale: CGFloat, quietZonePixel: CGFloat) -> (UIBezierPath, UIBezierPath, UIBezierPath?) {
+        let logoPath: UIBezierPath
+        let logoHolderPath: UIBezierPath
+        var scanAssistFramePath: UIBezierPath? = nil
+        
+        let sizeFactor = adjustment.size
+        let logoWidth = size.width * sizeFactor
+        let logoHeight = logoWidth
+        
+        let marginFactor = adjustment.margin
+        let margin = size.width * marginFactor
+        
+        switch adjustment.style {
+        case .round:
+            logoHolderPath = UIBezierPath(ovalIn: logoRectWithMargin)
+            logoPath = UIBezierPath(ovalIn: logoRect)
+        case .roundedRect:
+            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: logoRectWithMargin.width * 0.2)
+            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoWidth * 0.2)
+        case .rect:
+            logoHolderPath = UIBezierPath(rect: logoRectWithMargin)
+            logoPath = UIBezierPath(rect: logoRect)
+        case .scanAssistRect:
+            switch adjustment.position {
+            case .center:
+                logoRectWithMargin = CGRect(x: (size.width - logoWidth) / 2,
+                                            y: (size.height - logoHeight) / 2,
+                                            width: logoWidth,
+                                            height: logoHeight)
+            case .bottomRight:
+                let pixelSize = 1.0 / scale
+                let qzp = floor(quietZonePixel / pixelSize) * pixelSize
+                
+                logoRectWithMargin = CGRect(x: size.width - logoWidth - qzp,
+                                            y: size.height - logoHeight - qzp,
+                                            width: logoWidth,
+                                            height: logoHeight)
+            }
+            let padding = margin
+            let assistFrameWidth: CGFloat = logoRectWithMargin.width * 0.07
+            logoRect = CGRect(x: logoRectWithMargin.minX + assistFrameWidth + padding,
+                              y: logoRectWithMargin.minY + assistFrameWidth + padding,
+                              width: logoRectWithMargin.width - assistFrameWidth * 2 - padding * 2,
+                              height: logoRectWithMargin.height - assistFrameWidth * 2 - padding * 2)
+            
+            logoHolderPath = UIBezierPath(rect: logoRectWithMargin)
+            logoPath = UIBezierPath(rect: logoRect)
+            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: 0, lineWidth: assistFrameWidth)
+            
+        case .scanAssistRoundedRect:
+            switch adjustment.position {
+            case .center:
+                logoRectWithMargin = CGRect(x: (size.width - logoWidth) / 2,
+                                            y: (size.height - logoHeight) / 2,
+                                            width: logoWidth,
+                                            height: logoHeight)
+            case .bottomRight:
+                let pixelSize = 1.0 / scale
+                let qzp = floor(quietZonePixel / pixelSize) * pixelSize
+                
+                logoRectWithMargin = CGRect(x: size.width - logoWidth - qzp,
+                                            y: size.height - logoHeight - qzp,
+                                            width: logoWidth,
+                                            height: logoHeight)
+            }
+            let padding = margin
+            let assistFrameWidth: CGFloat = logoRectWithMargin.width * 0.07
+            logoRect = CGRect(x: logoRectWithMargin.minX + assistFrameWidth + padding,
+                              y: logoRectWithMargin.minY + assistFrameWidth + padding,
+                              width: logoRectWithMargin.width - assistFrameWidth * 2 - padding * 2,
+                              height: logoRectWithMargin.height - assistFrameWidth * 2 - padding * 2)
+                        
+            let cornerRadius = logoRectWithMargin.width * 0.2
+            logoHolderPath = UIBezierPath(roundedRect: logoRectWithMargin, cornerRadius: cornerRadius)
+            logoPath = UIBezierPath(roundedRect: logoRect, cornerRadius: logoRect.width * 0.2)
+            scanAssistFramePath = createScanAssistFramePath(rect: logoRectWithMargin, cornerRadius: cornerRadius, lineWidth: assistFrameWidth)
+        }
+        
+        return (logoPath, logoHolderPath, scanAssistFramePath)
+    }
+    
+    private func createScanAssistFramePath(rect: CGRect, cornerRadius: CGFloat, lineWidth: CGFloat) -> UIBezierPath {
+        let path = UIBezierPath()
+        let cornerLength = rect.width * 0.25 // Length of each L-shape arm
+        
+        // Adjust for line width so strokes are drawn inside the rect
+        let inset = lineWidth / 2
+        let drawingRect = rect.insetBy(dx: inset, dy: inset)
+        
+        let availableRadius = min(cornerRadius, cornerLength - lineWidth)
+        let adjustedCornerRadius = min(availableRadius, drawingRect.width / 2, drawingRect.height / 2)
+        if adjustedCornerRadius > 0 {
+            // Top Left Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY + cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY + adjustedCornerRadius))
+            path.addArc(withCenter: CGPoint(x: drawingRect.minX + adjustedCornerRadius, y: drawingRect.minY + adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: .pi,
+                        endAngle: .pi * 1.5,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.minY))
+            
+            // Top Right Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX - adjustedCornerRadius, y: drawingRect.minY))
+            path.addArc(withCenter: CGPoint(x: drawingRect.maxX - adjustedCornerRadius, y: drawingRect.minY + adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: .pi * 1.5,
+                        endAngle: 0,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.minY + cornerLength))
+            
+            // Bottom Right Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY - cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY - adjustedCornerRadius))
+            path.addArc(withCenter: CGPoint(x: drawingRect.maxX - adjustedCornerRadius, y: drawingRect.maxY - adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: 0,
+                        endAngle: .pi * 0.5,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.maxY))
+            
+            // Bottom Left Corner - rounded L shape
+            path.move(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.minX + adjustedCornerRadius, y: drawingRect.maxY))
+            path.addArc(withCenter: CGPoint(x: drawingRect.minX + adjustedCornerRadius, y: drawingRect.maxY - adjustedCornerRadius),
+                        radius: adjustedCornerRadius,
+                        startAngle: .pi * 0.5,
+                        endAngle: .pi,
+                        clockwise: true)
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.maxY - cornerLength))
+        } else {
+            // Square version (no corner radius)
+            // Top Left Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY + cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.minY))
+            
+            // Top Right Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.minY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.minY + cornerLength))
+            
+            // Bottom Right Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY - cornerLength))
+            path.addLine(to: CGPoint(x: drawingRect.maxX, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.maxX - cornerLength, y: drawingRect.maxY))
+            
+            // Bottom Left Corner - proper L shape
+            path.move(to: CGPoint(x: drawingRect.minX + cornerLength, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.maxY))
+            path.addLine(to: CGPoint(x: drawingRect.minX, y: drawingRect.maxY - cornerLength))
+        }
+        
+        path.lineWidth = lineWidth
+        path.lineCapStyle = .square
+        path.lineJoinStyle = .miter
+        
+        return path
+    }
 }
 
 public class ImageLogo: Logo {
