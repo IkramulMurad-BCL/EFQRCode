@@ -38,13 +38,18 @@ public enum AssetLessDotLineCap: String, Codable {
 }
 
 public protocol Dot {
-    func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], context: QRRenderContext)
     func draw(in renderContext: QRRenderContext)
 }
 
 public class AssetBased: Dot {
     private var imageCache: [String: UIImage] = [:]
-
+    
+    public let styleWebpNamesDict: [AssetBasedDotGroupingStyle: [String]]
+    
+    public init(styleWebpNamesDict: [AssetBasedDotGroupingStyle : [String]]) {
+        self.styleWebpNamesDict = styleWebpNamesDict
+    }
+    
     public func draw(in renderContext: QRRenderContext) {
         let qrcode = renderContext.qrcode
         let nCount = Int(renderContext.moduleCount)
@@ -67,12 +72,6 @@ public class AssetBased: Dot {
                 }
             }
         }
-    }
-    
-    public let styleWebpNamesDict: [AssetBasedDotGroupingStyle: [String]]
-    
-    public init(styleWebpNamesDict: [AssetBasedDotGroupingStyle : [String]]) {
-        self.styleWebpNamesDict = styleWebpNamesDict
     }
     
     private func isGroupValid(
@@ -166,14 +165,6 @@ public class AssetBased: Dot {
 }
 
 public struct AssetLess: Dot {
-    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCodeSwift.QRCode, available: inout [[Bool]], typeTable: [[QRCodeSwift.QRPointType]], context: QRRenderContext) {
-        
-    }
-    
-    public func draw(in renderContext: QRRenderContext) {
-        
-    }
-    
     public let groupingLogic: AssetLessDotGroupingStyle
     public let lineCap: AssetLessDotLineCap
     
@@ -182,40 +173,69 @@ public struct AssetLess: Dot {
         self.lineCap = lineCap
     }
     
-    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], pointList: inout [String], idCount: inout Int) {
+    @inline(__always)
+    func disableAA(_ ctx: CGContext) {
+        ctx.setAllowsAntialiasing(false)
+        ctx.setShouldAntialias(false)
+    }
+
+    @inline(__always)
+    func enableAA(_ ctx: CGContext) {
+        ctx.setAllowsAntialiasing(true)
+        ctx.setShouldAntialias(true)
+    }
+    
+    public func draw(in renderContext: QRRenderContext) {
+        let ctx = renderContext.context
+        ctx.setAllowsAntialiasing(false)
+        ctx.setShouldAntialias(false)
+        ctx.interpolationQuality = .none
+        
+        let qrcode = renderContext.qrcode
+        let nCount = Int(renderContext.moduleCount)
+        var available = Array(repeating: Array(repeating: true, count: nCount), count: nCount)
+        let typeTable = qrcode.model.getTypeTable()
+        
+        for y in 0..<nCount {
+            for x in 0..<nCount {
+                if !qrcode.model.isDark(x, y) || !available[x][y] { continue }
+                
+                switch typeTable[x][y] {
+                case .posCenter:
+                    break
+                    
+                case .posOther:
+                    break
+                    
+                default:
+                    add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, context: renderContext)
+                }
+            }
+        }
+    }
+    
+    public func add(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], typeTable: [[QRPointType]], context: QRRenderContext) {
         guard qrCode.model.isDark(x, y) else { return }
         guard available[x][y] else { return }
         
         switch groupingLogic {
         case .none:
-            drawSingle(x: x, y: y, available: &available, pointList: &pointList, idCount: &idCount)
+            drawSingle(x: x, y: y, available: &available, context: context)
             
         case .horizontal:
-            drawHorizontal(x: x, y: y, nCount: nCount, qrCode: qrCode,
-                           available: &available, pointList: &pointList, idCount: &idCount)
+            drawHorizontal(x: x, y: y, nCount: nCount, qrCode: qrCode, available: &available, context: context)
             
         case .vertical:
-            drawVertical(x: x, y: y, nCount: nCount, qrCode: qrCode,
-                         available: &available, pointList: &pointList, idCount: &idCount)
+            drawVertical(x: x, y: y, nCount: nCount, qrCode: qrCode, available: &available, context: context)
         }
     }
     
-    private func drawSingle(
-        x: Int, y: Int,
-        available: inout [[Bool]],
-        pointList: inout [String],
-        idCount: inout Int
-    ) {
-        pointList.append("<rect key=\"\(idCount)\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>")
-        idCount += 1
+    private func drawSingle(x: Int, y: Int, available: inout [[Bool]], context: QRRenderContext) {
+        drawBlackRect(x: x, y: y, w: 1, h: 1, context: context)
         available[x][y] = false
     }
 
-    private func drawHorizontal(
-        x: Int, y: Int, nCount: Int, qrCode: QRCode,
-        available: inout [[Bool]],
-        pointList: inout [String], idCount: inout Int
-    ) {
+    private func drawHorizontal(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], context: QRRenderContext) {
         var length = 1
         var nx = x + 1
 
@@ -225,45 +245,49 @@ public struct AssetLess: Dot {
             length += 1
             nx += 1
         }
-
-        // mark consumed
-        for dx in 0..<length { available[x+dx][y] = false }
         
-        var svg = ""
         if length == 1 {
-            svg.append(getSingleUnit(x: x, y: y, lineCap: lineCap, idCount: idCount))
+            drawSingleUnit(x: x, y: y, lineCap: lineCap, context: context)
         } else {
-            let startX = CGFloat(x)
-            let endX = CGFloat(x + length - 1)
-            let yPos = CGFloat(y)
-            
-            svg += getHorizontalStartCap(x: startX, y: yPos, lineCap: lineCap, id: idCount)
-            idCount += 1
-            
+            drawHorizontalStartCap(in: context, x: x, y: y, lineCap: lineCap)
             if length > 2 {
-                let midX = startX + 1
-                let midWidth = CGFloat(length - 2)
-                
-                svg += """
-                    <rect key="\(idCount)" x="\(midX)" y="\(yPos)" width="\(midWidth)" height="1"/>
-                    """
-                idCount += 1
+                drawBlackRect(x: x + 1, y: y, w: length - 2, h: 1, context: context)
             }
-            
-            
-            svg += getHorizontalEndCap(x: endX, y: yPos, lineCap: lineCap, id: idCount)
-            idCount += 1
+            drawHorizontalEndCap(in: context, x: x + length - 1, y: y, lineCap: lineCap)
         }
         
-        pointList.append(svg)
-        idCount += 1
+        // mark consumed
+        print("start print")
+        for dx in 0..<length {
+            print("x: \(x + dx), y: \(y)")
+            available[x+dx][y] = false
+        }
+    }
+    
+    func drawBlackRect(x: Int, y: Int, w: Int, h: Int, context: QRRenderContext) {
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
+        let ctx = context.context
+        
+        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
+
+        let dotWidth = CGFloat(w) * moduleSize
+        let dotHeight = CGFloat(h) * moduleSize
+
+        let drawRect = CGRect(
+            x: pixelX / scale,
+            y: pixelY / scale,
+            width: dotWidth / scale,
+            height: dotHeight / scale
+        )
+
+        ctx.setFillColor(UIColor.black.cgColor)
+        ctx.fill(drawRect)
     }
 
-    private func drawVertical(
-        x: Int, y: Int, nCount: Int, qrCode: QRCode,
-        available: inout [[Bool]],
-        pointList: inout [String], idCount: inout Int
-    ) {
+    private func drawVertical(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], context: QRRenderContext) {
         var length = 1
         var ny = y + 1
 
@@ -276,136 +300,336 @@ public struct AssetLess: Dot {
 
         for dy in 0..<length { available[x][y+dy] = false }
 
-        var svg = ""
         if length == 1 {
-            svg.append(getSingleUnit(x: x, y: y, lineCap: lineCap, idCount: idCount))
+            drawSingleUnit(x: x, y: y, lineCap: lineCap, context: context)
         } else {
-            let xPos = CGFloat(x)
-            let endY = CGFloat(y + length - 1)
-            let startY = CGFloat(y)
-            
-            svg += getVerticalStartCap(x: xPos, y: startY, lineCap: lineCap, id: idCount)
-            idCount += 1
-            
+            drawVerticalStartCap(in: context, x: x, y: y, lineCap: lineCap)
             if length > 2 {
-                let midY = startY + 1
-                let midHeight = CGFloat(length - 2)
-                
-                svg += """
-                    <rect key="\(idCount)" x="\(xPos)" y="\(midY)" width="1" height="\(midHeight)"/>
-                    """
-                idCount += 1
+                drawBlackRect(x: x, y: y + 1, w: 1, h: length - 2, context: context)
             }
-            
-            
-            svg += getVerticalEndCap(x: xPos, y: endY, lineCap: lineCap, id: idCount)
-            idCount += 1
+            drawVerticalEndCap(in: context, x: x, y: y + length - 1, lineCap: lineCap)
         }
-        
-        pointList.append(svg)
-        idCount += 1
     }
 
-    func getSingleUnit(x: Int, y: Int, lineCap: AssetLessDotLineCap, idCount: Int) -> String {
+    func drawSingleUnit(x: Int, y: Int, lineCap: AssetLessDotLineCap, context: QRRenderContext) {
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
+        let ctx = context.context
+        ctx.setFillColor(UIColor.black.cgColor)
+
+        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
+
+        let dotWidth = CGFloat(1) * moduleSize
+        let dotHeight = CGFloat(1) * moduleSize
+
+        let drawRect = CGRect(
+            x: pixelX / scale,
+            y: pixelY  / scale,
+            width: dotWidth  / scale,
+            height: dotHeight / scale
+        )
+
         switch lineCap {
         case .rounded:
-            return "<circle key=\"\(idCount)\" cx=\"\(x.cgFloat + 0.5)\" cy=\"\(y.cgFloat + 0.5)\" r=\"0.5\"/>"
-        case .angular:
-            let p1 = "\(x.cgFloat + 0.5),\(y.cgFloat)"         // Top
-            let p2 = "\(x.cgFloat + 1),\(y.cgFloat + 0.5)"     // Right
-            let p3 = "\(x.cgFloat + 0.5),\(y.cgFloat + 1)"     // Bottom
-            let p4 = "\(x.cgFloat),\(y.cgFloat + 0.5)"         // Left
+            let center = CGPoint(
+                    x: drawRect.midX,
+                    y: drawRect.midY
+            )
             
-            return """
-                    <polygon key="\(idCount)"
-                             points="\(p1) \(p2) \(p3) \(p4)"
-                             />
-                    """
+            let radius = min(drawRect.width, drawRect.height) / 2
+            
+            ctx.saveGState()
+            enableAA(ctx)
+            ctx.addArc(
+                center: center,
+                radius: radius,
+                startAngle: 0,
+                endAngle: .pi * 2,
+                clockwise: false
+            )
+            ctx.fillPath()
+            ctx.restoreGState()
+        case .angular:
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: drawRect.midX, y: drawRect.minY)) // Top
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.midY)) // Right
+            path.addLine(to: CGPoint(x: drawRect.midX, y: drawRect.maxY)) // Bottom
+            path.addLine(to: CGPoint(x: drawRect.minX, y: drawRect.midY)) // Left
+            path.closeSubpath()
+            
+            ctx.addPath(path)
+            ctx.fillPath()
         default:
-            return "<rect key=\"\(idCount)\" x=\"\(x)\" y=\"\(y)\" width=\"1\" height=\"1\"/>"
+            drawBlackRect(x: x, y: y, w: 1, h: 1, context: context)
         }
     }
     
-    func getHorizontalStartCap(x: CGFloat, y: CGFloat, lineCap: AssetLessDotLineCap, id: Int) -> String {
-        switch lineCap {
-        case .angular:
-            return """
-            <polygon key="\(id)" points="\(x),\(y+0.5) \(x+0.5),\(y) \(x+1),\(y) \(x+1),\(y+1) \(x+0.5),\(y+1)"/>
-            """
-        case .rounded:
-            return """
-                <path key="\(id)" d="M \(x+0.5) \(y)
-                                     A 0.5 0.5 0 0 0 \(x+0.5) \(y+1)
-                                     Z" />
+    func drawHorizontalStartCap(
+        in context: QRRenderContext,
+        x: Int, y: Int,
+        lineCap: AssetLessDotLineCap
+    ) {
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
+        let ctx = context.context
+        ctx.setFillColor(UIColor.black.cgColor)
+        
+        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
 
-                <rect key="\(id)_r" x="\(x+0.5)" y="\(y)" width="0.5" height="1"/>
-                """
+        let dotWidth = CGFloat(1) * moduleSize
+        let dotHeight = CGFloat(1) * moduleSize
+
+        let drawRect = CGRect(
+            x: pixelX / scale,
+            y: pixelY  / scale,
+            width: dotWidth / scale,
+            height: dotHeight / scale
+        )
+        
+        switch lineCap {
+
+        case .angular:
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: drawRect.minX, y: drawRect.midY))
+            path.addLine(to: CGPoint(x: drawRect.midX, y: drawRect.minY))
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.minY))
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.maxY))
+            path.addLine(to: CGPoint(x: drawRect.midX, y: drawRect.maxY))
+            path.closeSubpath()
+
+            ctx.addPath(path)
+            ctx.fillPath()
+
+        case .rounded:
+            // Half circle (left side)
+            ctx.saveGState()
+            enableAA(ctx)
+            ctx.addArc(
+                center: CGPoint(x: drawRect.midX, y: drawRect.midY),
+                radius: drawRect.height / 2,
+                startAngle: .pi / 2,
+                endAngle: -.pi / 2,
+                clockwise: false
+            )
+            ctx.closePath()
+            ctx.fillPath()
+            ctx.restoreGState()
+
+            // Right rectangle
+            ctx.fill(
+                CGRect(
+                    x: drawRect.midX,
+                    y: drawRect.minY,
+                    width: drawRect.width / 2,
+                    height: drawRect.height
+                )
+            )
+
         case .none:
-            return """
-            <rect key="\(id)" x="\(x)" y="\(y)" width="1" height="1"/>
-            """
+            ctx.fill(drawRect)
         }
     }
     
-    func getHorizontalEndCap(x: CGFloat, y: CGFloat, lineCap: AssetLessDotLineCap, id: Int) -> String {
+    func drawHorizontalEndCap(
+        in context: QRRenderContext,
+        x: Int, y: Int,
+        lineCap: AssetLessDotLineCap
+    ) {
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
+        let ctx = context.context
+        ctx.setFillColor(UIColor.black.cgColor)
+        
+        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
+
+        let dotWidth = CGFloat(1) * moduleSize
+        let dotHeight = CGFloat(1) * moduleSize
+
+        let drawRect = CGRect(
+            x: pixelX / scale,
+            y: pixelY / scale,
+            width: dotWidth / scale,
+            height: dotHeight / scale
+        )
         switch lineCap {
+
         case .angular:
-            return """
-            <polygon key="\(id)" points="\(x),\(y) \(x+0.5),\(y) \(x+1),\(y+0.5) \(x+0.5),\(y+1) \(x),\(y+1)"/>
-            """
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: drawRect.minX, y: drawRect.minY))
+            path.addLine(to: CGPoint(x: drawRect.midX, y: drawRect.minY))
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.midY))
+            path.addLine(to: CGPoint(x: drawRect.midX, y: drawRect.maxY))
+            path.addLine(to: CGPoint(x: drawRect.minX, y: drawRect.maxY))
+            path.closeSubpath()
+
+            ctx.addPath(path)
+            ctx.fillPath()
+
         case .rounded:
-            return """
-            <rect key="\(id)_l" x="\(x)" y="\(y)" width="0.5" height="1"/>
-            <path key="\(id)" d="M \(x+0.5) \(y) A 0.5 0.5 0 0 1 \(x+0.5) \(y+1) Z" />
-            """
+            // Left rectangle
+            ctx.fill(
+                CGRect(
+                    x: drawRect.minX,
+                    y: drawRect.minY,
+                    width: drawRect.width / 2,
+                    height: drawRect.height
+                )
+            )
+            
+            // Half circle (right side)
+            ctx.saveGState()
+            enableAA(ctx)
+            ctx.addArc(
+                center: CGPoint(x: drawRect.midX, y: drawRect.midY),
+                radius: drawRect.height / 2,
+                startAngle: -.pi / 2,
+                endAngle: .pi / 2,
+                clockwise: false
+            )
+            ctx.closePath()
+            ctx.fillPath()
+            ctx.restoreGState()
+
         case .none:
-            return """
-            <rect key="\(id)" x="\(x)" y="\(y)" width="1" height="1"/>
-            """
-        }
-    }
-    
-    func getVerticalStartCap(x: CGFloat, y: CGFloat, lineCap: AssetLessDotLineCap, id: Int) -> String {
-        switch lineCap {
-        case .angular:
-            // Diamond, top of vertical line
-            return """
-            <polygon key="\(id)" points="\(x+0.5),\(y) \(x+1),\(y+0.5) \(x+1),\(y+1) \(x),\(y+1) \(x),\(y+0.5)"/>
-            """
-        case .rounded:
-            // Top half-circle, facing up
-            return """
-            <path key="\(id)" d="M \(x) \(y+0.5)
-                                 A 0.5 0.5 0 0 1 \(x+1) \(y+0.5)
-                                 Z" />
-            <rect key="\(id)_b" x="\(x)" y="\(y+0.5)" width="1" height="0.5"/>
-            """
-        case .none:
-            return """
-            <rect key="\(id)" x="\(x)" y="\(y)" width="1" height="1"/>
-            """
+            ctx.fill(drawRect)
         }
     }
 
-    func getVerticalEndCap(x: CGFloat, y: CGFloat, lineCap: AssetLessDotLineCap, id: Int) -> String {
+    func drawVerticalStartCap(
+        in context: QRRenderContext,
+        x: Int, y: Int,
+        lineCap: AssetLessDotLineCap
+    ) {
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
+        let ctx = context.context
+        ctx.setFillColor(UIColor.black.cgColor)
+
+        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
+
+        let drawRect = CGRect(
+            x: pixelX / scale,
+            y: pixelY / scale,
+            width: moduleSize / scale,
+            height: moduleSize / scale
+        )
+
         switch lineCap {
+
         case .angular:
-            // Diamond, bottom of vertical line
-            return """
-            <polygon key="\(id)" points="\(x),\(y) \(x+1),\(y) \(x+1),\(y+0.5) \(x+0.5),\(y+1) \(x),\(y+0.5)"/>
-            """
+            // Diamond pointing up
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: drawRect.midX, y: drawRect.minY))       // Top
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.midY))   // Right
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.maxY))   // Bottom-right
+            path.addLine(to: CGPoint(x: drawRect.minX, y: drawRect.maxY))   // Bottom-left
+            path.addLine(to: CGPoint(x: drawRect.minX, y: drawRect.midY))   // Left
+            path.closeSubpath()
+
+            ctx.addPath(path)
+            ctx.fillPath()
+
         case .rounded:
-            // Bottom half-circle, facing down
-            return """
-            <rect key="\(id)_t" x="\(x)" y="\(y)" width="1" height="0.5"/>
-            <path key="\(id)" d="M \(x) \(y+0.5)
-                                 A 0.5 0.5 0 0 0 \(x+1) \(y+0.5)
-                                 Z" />
-            """
+            // Bottom rectangle
+            ctx.fill(
+                CGRect(
+                    x: drawRect.minX,
+                    y: drawRect.midY,
+                    width: drawRect.width,
+                    height: drawRect.height / 2
+                )
+            )
+
+            // Top half-circle
+            ctx.saveGState()
+            enableAA(ctx)
+            ctx.addArc(
+                center: CGPoint(x: drawRect.midX, y: drawRect.midY),
+                radius: drawRect.width / 2,
+                startAngle: .pi,
+                endAngle: 0,
+                clockwise: false
+            )
+            ctx.closePath()
+            ctx.fillPath()
+            ctx.restoreGState()
+
         case .none:
-            return """
-            <rect key="\(id)" x="\(x)" y="\(y)" width="1" height="1"/>
-            """
+            ctx.fill(drawRect)
+        }
+    }
+
+    func drawVerticalEndCap(
+        in context: QRRenderContext,
+        x: Int, y: Int,
+        lineCap: AssetLessDotLineCap
+    ) {
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
+        let ctx = context.context
+        ctx.setFillColor(UIColor.black.cgColor)
+
+        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
+
+        let drawRect = CGRect(
+            x: pixelX / scale,
+            y: pixelY / scale,
+            width: moduleSize / scale,
+            height: moduleSize / scale
+        )
+
+        switch lineCap {
+
+        case .angular:
+            // Diamond pointing down
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: drawRect.minX, y: drawRect.minY))       // Top-left
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.minY))   // Top-right
+            path.addLine(to: CGPoint(x: drawRect.maxX, y: drawRect.midY))   // Right
+            path.addLine(to: CGPoint(x: drawRect.midX, y: drawRect.maxY))   // Bottom
+            path.addLine(to: CGPoint(x: drawRect.minX, y: drawRect.midY))   // Left
+            path.closeSubpath()
+
+            ctx.addPath(path)
+            ctx.fillPath()
+
+        case .rounded:
+            // Top rectangle
+            ctx.fill(
+                CGRect(
+                    x: drawRect.minX,
+                    y: drawRect.minY,
+                    width: drawRect.width,
+                    height: drawRect.height / 2
+                )
+            )
+
+            // Bottom half-circle
+            ctx.saveGState()
+            enableAA(ctx)
+            ctx.addArc(
+                center: CGPoint(x: drawRect.midX, y: drawRect.midY),
+                radius: drawRect.width / 2,
+                startAngle: 0,
+                endAngle: .pi,
+                clockwise: false
+            )
+            ctx.closePath()
+            ctx.fillPath()
+            ctx.restoreGState()
+
+        case .none:
+            ctx.fill(drawRect)
         }
     }
 
