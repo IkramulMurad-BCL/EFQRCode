@@ -117,7 +117,7 @@ public class AssetBased: Dot {
         let quietZonePixel = context.quietZonePixel
         let scale = context.scale
         
-        for style in AssetBasedDotGroupingStyle.allCases {
+        for style in [AssetBasedDotGroupingStyle.twoByTwo, AssetBasedDotGroupingStyle.oneByOne] {
             let (w, h) = style.size
             if x > nCount - w || y > nCount - h { continue }
             
@@ -221,7 +221,7 @@ public struct AssetLess: Dot {
         switch groupingLogic {
         case .none:
             drawSingle(x: x, y: y, available: &available, context: context)
-            
+            context.context.fillPath()
         case .horizontal:
             drawHorizontal(x: x, y: y, nCount: nCount, qrCode: qrCode, available: &available, context: context)
             
@@ -284,7 +284,8 @@ public struct AssetLess: Dot {
         )
 
         ctx.setFillColor(UIColor.black.cgColor)
-        ctx.fill(drawRect)
+        ctx.addRect(drawRect)
+        //ctx.fill(drawRect)
     }
 
     private func drawVertical(x: Int, y: Int, nCount: Int, qrCode: QRCode, available: inout [[Bool]], context: QRRenderContext) {
@@ -300,6 +301,7 @@ public struct AssetLess: Dot {
 
         for dy in 0..<length { available[x][y+dy] = false }
 
+        enableAA(context.context)
         if length == 1 {
             drawSingleUnit(x: x, y: y, lineCap: lineCap, context: context)
         } else {
@@ -309,6 +311,7 @@ public struct AssetLess: Dot {
             }
             drawVerticalEndCap(in: context, x: x, y: y + length - 1, lineCap: lineCap)
         }
+        context.context.fillPath()
     }
 
     func drawSingleUnit(x: Int, y: Int, lineCap: AssetLessDotLineCap, context: QRRenderContext) {
@@ -340,8 +343,8 @@ public struct AssetLess: Dot {
             
             let radius = min(drawRect.width, drawRect.height) / 2
             
-            ctx.saveGState()
-            enableAA(ctx)
+//            ctx.saveGState()
+//            enableAA(ctx)
             ctx.addArc(
                 center: center,
                 radius: radius,
@@ -349,8 +352,8 @@ public struct AssetLess: Dot {
                 endAngle: .pi * 2,
                 clockwise: false
             )
-            ctx.fillPath()
-            ctx.restoreGState()
+//            ctx.fillPath()
+//            ctx.restoreGState()
         case .angular:
             let path = CGMutablePath()
             path.move(to: CGPoint(x: drawRect.midX, y: drawRect.minY)) // Top
@@ -539,18 +542,24 @@ public struct AssetLess: Dot {
 
         case .rounded:
             // Bottom rectangle
-            ctx.fill(
-                CGRect(
-                    x: drawRect.minX,
-                    y: drawRect.midY,
-                    width: drawRect.width,
-                    height: drawRect.height / 2
-                )
-            )
+//            ctx.fill(
+//                CGRect(
+//                    x: drawRect.minX,
+//                    y: drawRect.midY,
+//                    width: drawRect.width,
+//                    height: drawRect.height / 2
+//                )
+//            )
+            ctx.addRect(CGRect(
+                x: drawRect.minX,
+                y: drawRect.midY,
+                width: drawRect.width,
+                height: drawRect.height / 2
+            ))
 
             // Top half-circle
-            ctx.saveGState()
-            enableAA(ctx)
+//            ctx.saveGState()
+//            enableAA(ctx)
             ctx.addArc(
                 center: CGPoint(x: drawRect.midX, y: drawRect.midY),
                 radius: drawRect.width / 2,
@@ -559,8 +568,8 @@ public struct AssetLess: Dot {
                 clockwise: false
             )
             ctx.closePath()
-            ctx.fillPath()
-            ctx.restoreGState()
+//            ctx.fillPath()
+//            ctx.restoreGState()
 
         case .none:
             ctx.fill(drawRect)
@@ -605,18 +614,24 @@ public struct AssetLess: Dot {
 
         case .rounded:
             // Top rectangle
-            ctx.fill(
-                CGRect(
-                    x: drawRect.minX,
-                    y: drawRect.minY,
-                    width: drawRect.width,
-                    height: drawRect.height / 2
-                )
-            )
+//            ctx.fill(
+//                CGRect(
+//                    x: drawRect.minX,
+//                    y: drawRect.minY,
+//                    width: drawRect.width,
+//                    height: drawRect.height / 2
+//                )
+//            )
+            ctx.addRect(CGRect(
+                x: drawRect.minX,
+                y: drawRect.minY,
+                width: drawRect.width,
+                height: drawRect.height / 2
+            ))
 
             // Bottom half-circle
-            ctx.saveGState()
-            enableAA(ctx)
+//            ctx.saveGState()
+//            enableAA(ctx)
             ctx.addArc(
                 center: CGPoint(x: drawRect.midX, y: drawRect.midY),
                 radius: drawRect.width / 2,
@@ -625,8 +640,8 @@ public struct AssetLess: Dot {
                 clockwise: false
             )
             ctx.closePath()
-            ctx.fillPath()
-            ctx.restoreGState()
+//            ctx.fillPath()
+//            ctx.restoreGState()
 
         case .none:
             ctx.fill(drawRect)
