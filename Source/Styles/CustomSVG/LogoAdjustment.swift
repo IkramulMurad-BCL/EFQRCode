@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum LogoStyle {
+public enum LogoStyle: String, CaseIterable, Codable {
     case rect
     case round
     case roundedRect
@@ -15,12 +15,12 @@ public enum LogoStyle {
     case scanAssistRoundedRect
 }
 
-public enum LogoPosition {
+public enum LogoPosition: String, CaseIterable, Codable {
     case center
     case bottomRight
 }
 
-public class LogoAdjustment {
+public class LogoAdjustment: Codable {
     public var style: LogoStyle
     public var position: LogoPosition
     public var size: CGFloat
