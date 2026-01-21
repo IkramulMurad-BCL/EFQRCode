@@ -7,11 +7,11 @@
 
 import UIKit
 
-public enum GradientDirection {
-    case topToBottom
-    case leftToRight
-    case topLeftToBottomRight
-    case topRightToBottomLeft
+public enum GradientDirection: String, Codable {
+    case topToBottom = "top_to_bottom"
+    case leftToRight = "left_to_right"
+    case topLeftToBottomRight = "top_left_to_bottom_right"
+    case topRightToBottomLeft = "top_right_to_bottom_left"
 
     var points: (start: CGPoint, end: CGPoint) {
         switch self {
@@ -97,5 +97,53 @@ public class ImageMask: VisualFill {
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: size))
         }
+    }
+}
+
+public class AnimatedImage: VisualFill {
+    public let frames: [UIImage]
+    public let duration: TimeInterval
+
+    public init(frames: [UIImage], duration: TimeInterval) {
+        self.frames = frames
+        self.duration = duration
+    }
+
+    public convenience init?(fileURL: URL) {
+        guard
+            let data = try? Data(contentsOf: fileURL),
+            let source = CGImageSourceCreateWithData(data as CFData, nil)
+        else { return nil }
+
+        let count = CGImageSourceGetCount(source)
+        var images: [UIImage] = []
+        var totalDuration: TimeInterval = 0
+
+        for i in 0..<count {
+            guard let cgImage = CGImageSourceCreateImageAtIndex(source, i, nil) else { continue }
+            images.append(UIImage(cgImage: cgImage))
+
+            let props = CGImageSourceCopyPropertiesAtIndex(source, i, nil) as? [CFString: Any]
+            let gif = props?[kCGImagePropertyGIFDictionary] as? [CFString: Any]
+            let delay = gif?[kCGImagePropertyGIFUnclampedDelayTime] as? Double
+                ?? gif?[kCGImagePropertyGIFDelayTime] as? Double
+                ?? 0.1
+            totalDuration += delay
+        }
+
+        self.init(frames: images, duration: totalDuration)
+    }
+
+    public func asImage(size: CGSize, scale: CGFloat = 1.0) -> UIImage? {
+        let resizedFrames = frames.map { frame in
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = scale
+            let renderer = UIGraphicsImageRenderer(size: size, format: format)
+            return renderer.image { _ in
+                frame.draw(in: CGRect(origin: .zero, size: size))
+            }
+        }
+
+        return UIImage.animatedImage(with: resizedFrames, duration: duration)
     }
 }
