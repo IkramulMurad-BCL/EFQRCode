@@ -53,8 +53,8 @@ let package = Package(
                 dependencies: [
                     "QRCodeSwift",
                     "SwiftDraw",
-                    .product(name: "SDWebImage", package: "SDWebImage"),
-                    .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
+//                    .product(name: "SDWebImage", package: "SDWebImage"),
+//                    .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
                 ],
                 path: "Source",
                 exclude: ["Info.plist", "Info-tvOS.plist"]),
