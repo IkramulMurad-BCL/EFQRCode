@@ -32,6 +32,8 @@ Pod::Spec.new do |s|
     
     s.dependency 'SwiftDraw', '~> 0.22.0'
     s.dependency 'ef_swift_qrcodejs', '~> 2.3.1'
+    s.dependency 'SDWebImage', '~> 5.21'
+    s.dependency 'SDWebImageWebPCoder', '~> 0.15.0'
 
     s.source_files = 'Source/**/*.{h,swift}'
 end
