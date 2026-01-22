@@ -104,6 +104,17 @@ public class AnimatedImage: VisualFill {
     public let frames: [UIImage]
     public let duration: TimeInterval
 
+    public var frameCount: Int { frames.count }
+
+    public func frame(at index: Int, size: CGSize, scale: CGFloat) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        return renderer.image { _ in
+            frames[index].draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+
     public init(frames: [UIImage], duration: TimeInterval) {
         self.frames = frames
         self.duration = duration

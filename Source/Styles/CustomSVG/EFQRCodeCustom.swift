@@ -104,7 +104,19 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let updatedMaskedForeground = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-
+        if let animatedBG = params.background as? AnimatedImage {
+            return try renderAnimatedBackground(animatedBG,
+                                                 qrImageRaw: qrImageRaw,
+                                                 maskedForeground: maskedForeground,
+                                                 updatedMaskedForeground: updatedMaskedForeground,
+                                                 logoImage: logoImage,
+                                                 logoPath: logoPath,
+                                                 logoRect: logoRect,
+                                                 scanAssistFramePath: scanAssistFramePath,
+                                                 size: size,
+                                                 scale: scale)
+        }
+        
         // Step 1: Main renderer (single pass)
         let finalQRImage = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
             let context = ctx.cgContext
@@ -174,6 +186,65 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         return fg.isApproximatelyBlack && bg.isApproximatelyWhite
     }
+    
+    private func renderAnimatedBackground(
+        _ animatedBG: AnimatedImage,
+        qrImageRaw: UIImage,
+        maskedForeground: UIImage?,
+        updatedMaskedForeground: UIImage?,
+        logoImage: UIImage?,
+        logoPath: UIBezierPath,
+        logoRect: CGRect,
+        scanAssistFramePath: UIBezierPath?,
+        size: CGSize,
+        scale: CGFloat
+    ) throws -> UIImage {
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+
+        var frames: [UIImage] = []
+
+        for i in 0..<animatedBG.frames.count {
+            let bgFrame = animatedBG.frame(at: i, size: size, scale: scale)
+
+            let frame = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+                let context = ctx.cgContext
+                let rect = CGRect(origin: .zero, size: size)
+
+                // Background
+                bgFrame.draw(in: rect)
+
+                // Foreground QR
+                if logoImage != nil {
+                    updatedMaskedForeground?.draw(in: rect)
+                } else {
+                    maskedForeground?.draw(in: rect)
+                }
+
+                // Scan assist
+                if let scanAssistFramePath {
+                    context.setStrokeColor(UIColor.red.cgColor)
+                    context.setLineWidth(scanAssistFramePath.lineWidth)
+                    context.addPath(scanAssistFramePath.cgPath)
+                    context.strokePath()
+                }
+
+                // Logo
+                if let logoImage {
+                    context.saveGState()
+                    logoPath.addClip()
+                    logoImage.draw(in: logoRect)
+                    context.restoreGState()
+                }
+            }
+
+            frames.append(frame)
+        }
+
+        return UIImage.animatedImage(with: frames, duration: animatedBG.duration)!
+    }
+
 }
 
 // MARK: - UIColor Extension for Hex Support
