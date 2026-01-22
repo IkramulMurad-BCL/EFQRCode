@@ -7,11 +7,11 @@
 
 import UIKit
 
-public enum GradientDirection: String, Codable {
-    case topToBottom = "top_to_bottom"
-    case leftToRight = "left_to_right"
-    case topLeftToBottomRight = "top_left_to_bottom_right"
-    case topRightToBottomLeft = "top_right_to_bottom_left"
+public enum GradientDirection: String, CaseIterable, Codable {
+    case topToBottom
+    case leftToRight
+    case topLeftToBottomRight
+    case topRightToBottomLeft
 
     var points: (start: CGPoint, end: CGPoint) {
         switch self {
@@ -52,9 +52,9 @@ public class SolidColor: VisualFill {
 }
 
 public class LinearGradient: VisualFill {
-    public let startColor: UIColor
-    public let endColor: UIColor
-    public let direction: GradientDirection
+    public var startColor: UIColor
+    public var endColor: UIColor
+    public var direction: GradientDirection
     
     public init(with hex1: String, hex2: String, direction: GradientDirection = .topToBottom) {
         self.startColor = UIColor(hex: hex1)
