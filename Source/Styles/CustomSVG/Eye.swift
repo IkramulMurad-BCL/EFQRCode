@@ -9,10 +9,17 @@ import Foundation
 import SDWebImageWebPCoder
 
 public class Eye {
+    let eyeImage: UIImage?
     let eyeWebp: String
     
     public init(eyeWebp: String = "") {
         self.eyeWebp = eyeWebp
+        self.eyeImage = nil
+    }
+    
+    public init(image: UIImage) {
+        self.eyeWebp = ""
+        self.eyeImage = image
     }
     
     func draw(in ctx: QRRenderContext) {
@@ -24,13 +31,7 @@ public class Eye {
             CGPoint(x: ctx.quietZonePixel, y: ctx.size.height - ctx.quietZonePixel - eyeSize)
         ]
 
-        guard
-            let webpUrl = Bundle.main.url(forResource: eyeWebp, withExtension: "webp"),
-            let data = NSData(contentsOf: webpUrl),
-            let eyeImage = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
-        else {
-            return
-        }
+        guard let image = loadImage() else { return }
         
         for pos in positions {
             let drawRect = CGRect(
@@ -40,7 +41,25 @@ public class Eye {
                 height: eyeSize / ctx.scale
             )
             
-            eyeImage.draw(in: drawRect)
+            image.draw(in: drawRect)
         }
+    }
+    
+    private func loadImage() -> UIImage? {
+        // Prefer UIImage if provided
+        if let img = eyeImage {
+            return img
+        }
+        
+        // Fallback to WebP
+        guard
+            let webpUrl = Bundle.main.url(forResource: eyeWebp, withExtension: "webp"),
+            let data = NSData(contentsOf: webpUrl),
+            let eyeImage = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
+        else {
+            return nil
+        }
+        
+        return eyeImage
     }
 }
