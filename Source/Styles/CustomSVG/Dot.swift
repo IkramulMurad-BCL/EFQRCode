@@ -50,6 +50,10 @@ public class AssetBased: Dot {
         self.styleWebpNamesDict = styleWebpNamesDict
     }
     
+    public func setCacheImage(_ image: UIImage, forKey key: String) {
+        imageCache[key] = image
+    }
+    
     public func draw(in renderContext: QRRenderContext) {
         let qrcode = renderContext.qrcode
         let nCount = Int(renderContext.moduleCount)
@@ -136,7 +140,7 @@ public class AssetBased: Dot {
                 let name = names.randomElement(),
                 let dotImage = cachedDotImage(named: name)
             else {
-                break
+                continue
             }
             
             for dx in 0..<w {
