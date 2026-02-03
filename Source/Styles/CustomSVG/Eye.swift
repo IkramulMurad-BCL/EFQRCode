@@ -9,57 +9,77 @@ import Foundation
 import SDWebImageWebPCoder
 
 public class Eye {
-    let eyeImage: UIImage?
-    let eyeWebp: String
+    private let eyeImages: [UIImage?]
+    private let eyeWebpNames: [String?]
     
-    public init(eyeWebp: String = "") {
-        self.eyeWebp = eyeWebp
-        self.eyeImage = nil
-    }
-    
+    /// Initialize with a single UIImage (used for all positions)
     public init(image: UIImage) {
-        self.eyeWebp = ""
-        self.eyeImage = image
+        self.eyeImages = [image, image, image]
+        self.eyeWebpNames = [nil, nil, nil]
     }
+    
+    /// Initialize with 3 UIImages (one for each position)
+    public init(images: [UIImage?]) {
+        var imgs: [UIImage?] = [nil, nil, nil]
+        for (i, img) in images.enumerated() {
+            if i < 3 { imgs[i] = img }
+        }
+        self.eyeImages = imgs
+        self.eyeWebpNames = [nil, nil, nil]
+    }
+    
+    /// Initialize with a single WebP name (used for all positions)
+    public init(eyeWebp: String) {
+        self.eyeImages = [nil, nil, nil]
+        self.eyeWebpNames = [eyeWebp, eyeWebp, eyeWebp]
+    }
+    
+    /// Initialize with 3 WebP names (one per position)
+    public init(eyeWebps: [String]) {
+        var names: [String?] = [nil, nil, nil]
+        for (i, name) in eyeWebps.enumerated() {
+            if i < 3 { names[i] = name }
+        }
+        self.eyeImages = [nil, nil, nil]
+        self.eyeWebpNames = names
+    }
+    
     
     func draw(in ctx: QRRenderContext) {
         let eyeSize = ctx.moduleSize * 7
-
+        
         let positions = [
             CGPoint(x: ctx.quietZonePixel, y: ctx.quietZonePixel),
             CGPoint(x: ctx.size.width - ctx.quietZonePixel - eyeSize, y: ctx.quietZonePixel),
             CGPoint(x: ctx.quietZonePixel, y: ctx.size.height - ctx.quietZonePixel - eyeSize)
         ]
-
-        guard let image = loadImage() else { return }
         
-        for pos in positions {
+        for i in 0..<3 {
+            guard let image = loadImage(at: i) else { continue }
+            
+            let pos = positions[i]
             let drawRect = CGRect(
                 x: pos.x / ctx.scale,
                 y: pos.y / ctx.scale,
                 width: eyeSize / ctx.scale,
                 height: eyeSize / ctx.scale
             )
-            
             image.draw(in: drawRect)
         }
     }
     
-    private func loadImage() -> UIImage? {
-        // Prefer UIImage if provided
-        if let img = eyeImage {
-            return img
-        }
+    /// Load image for position i (UIImage first, fallback to WebP)
+    private func loadImage(at index: Int) -> UIImage? {
+        if index >= eyeImages.count { return nil }
         
-        // Fallback to WebP
-        guard
-            let webpUrl = Bundle.main.url(forResource: eyeWebp, withExtension: "webp"),
-            let data = NSData(contentsOf: webpUrl),
-            let eyeImage = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
-        else {
-            return nil
-        }
+        if let img = eyeImages[index] { return img }
         
-        return eyeImage
+        if let webp = eyeWebpNames[index], !webp.isEmpty,
+           let webpUrl = Bundle.main.url(forResource: webp, withExtension: "webp"),
+           let data = NSData(contentsOf: webpUrl),
+           let decoded = SDImageWebPCoder.shared.decodedImage(with: data as Data?) {
+            return decoded
+        }
+        return nil
     }
 }
