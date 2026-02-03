@@ -171,16 +171,12 @@ public class AssetBased: Dot {
 public struct AssetLess: Dot {
     public let groupingLogic: AssetLessDotGroupingStyle
     public let lineCap: AssetLessDotLineCap
+    public let unitSize: CGSize
     
-    public init(groupingLogic: AssetLessDotGroupingStyle, lineCap: AssetLessDotLineCap) {
+    public init(groupingLogic: AssetLessDotGroupingStyle, lineCap: AssetLessDotLineCap, unitSize: CGSize = CGSize(width: 1, height: 1)) {
         self.groupingLogic = groupingLogic
         self.lineCap = lineCap
-    }
-    
-    @inline(__always)
-    func disableAA(_ ctx: CGContext) {
-        ctx.setAllowsAntialiasing(false)
-        ctx.setShouldAntialias(false)
+        self.unitSize = unitSize
     }
 
     @inline(__always)
@@ -277,12 +273,12 @@ public struct AssetLess: Dot {
         let pixelX = quietZonePixel + CGFloat(x) * moduleSize
         let pixelY = quietZonePixel + CGFloat(y) * moduleSize
 
-        let dotWidth = CGFloat(w) * moduleSize
-        let dotHeight = CGFloat(h) * moduleSize
+        let dotWidth = CGFloat(w) * unitSize.width * moduleSize
+        let dotHeight = CGFloat(h) * unitSize.height * moduleSize
 
         let drawRect = CGRect(
-            x: pixelX / scale,
-            y: pixelY / scale,
+            x: (pixelX + dotWidth / 2) / scale,
+            y: (pixelY + dotHeight / 2) / scale,
             width: dotWidth / scale,
             height: dotHeight / scale
         )
