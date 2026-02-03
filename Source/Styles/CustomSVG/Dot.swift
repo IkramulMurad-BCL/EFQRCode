@@ -270,19 +270,19 @@ public struct AssetLess: Dot {
         let scale = context.scale
         let ctx = context.context
         
-        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
-        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
-
+        let cellCenterX = quietZonePixel + (CGFloat(x) + 0.5) * moduleSize
+        let cellCenterY = quietZonePixel + (CGFloat(y) + 0.5) * moduleSize
+        
         let dotWidth = CGFloat(w) * unitSize.width * moduleSize
         let dotHeight = CGFloat(h) * unitSize.height * moduleSize
-
+        
         let drawRect = CGRect(
-            x: (pixelX + dotWidth / 2) / scale,
-            y: (pixelY + dotHeight / 2) / scale,
+            x: (cellCenterX - dotWidth / 2) / scale,
+            y: (cellCenterY - dotHeight / 2) / scale,
             width: dotWidth / scale,
             height: dotHeight / scale
         )
-
+        
         ctx.setFillColor(UIColor.black.cgColor)
         ctx.addRect(drawRect)
         //ctx.fill(drawRect)
