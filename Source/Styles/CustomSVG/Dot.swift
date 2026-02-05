@@ -639,7 +639,7 @@ public struct AssetLess: Dot {
 public struct AssetLessBlackWhiteAll: Dot {
     public var unitSize: CGSize
     
-    public init(unitSize: CGSize = .init(width: 0.5, height: 0.5)) {
+    public init(unitSize: CGSize = .init(width: 0.3, height: 0.3)) {
         self.unitSize = unitSize
     }
     

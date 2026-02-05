@@ -9,6 +9,7 @@ import Foundation
 import SDWebImageWebPCoder
 
 public class Eye {
+    public var needTranslucentWhiteBack = false
     private let eyeImages: [UIImage?]
     private let eyeWebpNames: [String?]
     
@@ -47,6 +48,7 @@ public class Eye {
     
     func draw(in ctx: QRRenderContext) {
         let eyeSize = ctx.moduleSize * 7
+        let eyeBGSize = ctx.moduleSize * 8
         
         let positions = [
             CGPoint(x: ctx.quietZonePixel, y: ctx.quietZonePixel),
@@ -54,7 +56,25 @@ public class Eye {
             CGPoint(x: ctx.quietZonePixel, y: ctx.size.height - ctx.quietZonePixel - eyeSize)
         ]
         
+        let bgPositions = [
+            CGPoint(x: ctx.quietZonePixel, y: ctx.quietZonePixel),
+            CGPoint(x: ctx.size.width - ctx.quietZonePixel - eyeBGSize, y: ctx.quietZonePixel),
+            CGPoint(x: ctx.quietZonePixel, y: ctx.size.height - ctx.quietZonePixel - eyeBGSize)
+        ]
+        
         for i in 0..<3 {
+            if needTranslucentWhiteBack {
+                let bgPos = bgPositions[i]
+                let bgRect = CGRect(
+                    x: bgPos.x / ctx.scale,
+                    y: bgPos.y / ctx.scale,
+                    width: eyeBGSize / ctx.scale,
+                    height: eyeBGSize / ctx.scale
+                )
+                ctx.context.setFillColor(UIColor.white.withAlphaComponent(0.3).cgColor)
+                ctx.context.fill(bgRect)
+            }
+            
             guard let image = loadImage(at: i) else { continue }
             
             let pos = positions[i]
@@ -64,6 +84,7 @@ public class Eye {
                 width: eyeSize / ctx.scale,
                 height: eyeSize / ctx.scale
             )
+            
             image.draw(in: drawRect)
         }
     }
