@@ -645,9 +645,6 @@ public struct AssetLessBlackWhiteAll: Dot {
     
     public func draw(in renderContext: QRRenderContext) {
         let ctx = renderContext.context
-        ctx.setAllowsAntialiasing(false)
-        ctx.setShouldAntialias(false)
-        ctx.interpolationQuality = .none
         ctx.setFillColor(UIColor.black.cgColor)
         
         let qrcode = renderContext.qrcode

@@ -37,6 +37,10 @@ public class EFStyleSVGParams: EFStyleParams {
         self.eye = eye
     }
     
+    public func setEyesTranslucentWhiteBack(_ needBack: Bool) {
+        self.eye.needTranslucentWhiteBack = needBack
+    }
+    
     public init(
         icon: EFStyleParamIcon? = nil,
         backdrop: EFStyleParamBackdrop = EFStyleSVGParams.defaultBackdrop,
