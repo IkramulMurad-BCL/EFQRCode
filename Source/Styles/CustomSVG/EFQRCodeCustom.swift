@@ -54,8 +54,10 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         // Step 0: Generate raw QR image (white canvas + eyes + dots)
         let qrImageRaw = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
             let context = ctx.cgContext
-            context.setFillColor(UIColor.white.cgColor)
-            context.fill(CGRect(origin: .zero, size: size))
+            if !(params.dot is AssetLessBlackWhiteAll) {
+                    context.setFillColor(UIColor.white.cgColor)
+                    context.fill(CGRect(origin: .zero, size: size))
+                }
             
             let renderContext = QRRenderContext(
                 context: context,
@@ -82,7 +84,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         var maskedForeground: UIImage? = nil
         if let fg = foregroundImage {
-            let freshQR = isFreshQR(foreground: params.foreground, background: params.background)
+            let freshQR = isFreshQR(foreground: params.foreground, background: params.background) || params.dot is AssetLessBlackWhiteAll
             if freshQR {
                 maskedForeground = qrImageRaw
             } else {

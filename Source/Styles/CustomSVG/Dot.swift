@@ -66,10 +66,10 @@ public class AssetBased: Dot {
                 
                 switch typeTable[x][y] {
                 case .posCenter:
-                    break
+                    continue
                     
                 case .posOther:
-                    break
+                    continue
                     
                 default:
                     add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, context: renderContext)
@@ -203,10 +203,10 @@ public struct AssetLess: Dot {
                 
                 switch typeTable[x][y] {
                 case .posCenter:
-                    break
+                    continue
                     
                 case .posOther:
-                    break
+                    continue
                     
                 default:
                     add(x: x, y: y, nCount: nCount, qrCode: qrcode, available: &available, typeTable: typeTable, context: renderContext)
@@ -634,4 +634,67 @@ public struct AssetLess: Dot {
         }
     }
 
+}
+
+public struct AssetLessBlackWhiteAll: Dot {
+    public var unitSize: CGSize
+    
+    public init(unitSize: CGSize = .init(width: 0.5, height: 0.5)) {
+        self.unitSize = unitSize
+    }
+    
+    public func draw(in renderContext: QRRenderContext) {
+        let ctx = renderContext.context
+        ctx.setAllowsAntialiasing(false)
+        ctx.setShouldAntialias(false)
+        ctx.interpolationQuality = .none
+        ctx.setFillColor(UIColor.black.cgColor)
+        
+        let qrcode = renderContext.qrcode
+        let nCount = Int(renderContext.moduleCount)
+        let typeTable = qrcode.model.getTypeTable()
+        
+        for y in 0..<nCount {
+            for x in 0..<nCount {
+                switch typeTable[x][y] {
+                case .posCenter, .posOther:
+                    continue
+                    
+                default:
+                    add(x: x, y: y, qrCode: qrcode, context: renderContext)
+                }
+            }
+        }
+    }
+    
+    public func add(x: Int, y: Int, qrCode: QRCode, context: QRRenderContext) {
+        let moduleSize = context.moduleSize
+        let quietZonePixel = context.quietZonePixel
+        let scale = context.scale
+        let ctx = context.context
+        
+        let pixelX = quietZonePixel + CGFloat(x) * moduleSize
+        let pixelY = quietZonePixel + CGFloat(y) * moduleSize
+        
+        let rectCenterX = pixelX + moduleSize / 2
+        let rectCenterY = pixelY + moduleSize / 2
+        
+        let dotWidth = moduleSize * unitSize.width
+        let dotHeight = moduleSize * unitSize.height
+        
+        let drawRect = CGRect(
+            x: (rectCenterX - dotWidth / 2) / scale,
+            y: (rectCenterY - dotHeight / 2) / scale,
+            width: dotWidth / scale,
+            height: dotHeight / scale
+        )
+        
+        if qrCode.model.isDark(x, y) {
+            ctx.setFillColor(UIColor.black.cgColor)
+        } else {
+            ctx.setFillColor(UIColor.white.cgColor)
+        }
+        
+        ctx.fill(drawRect)
+    }
 }
