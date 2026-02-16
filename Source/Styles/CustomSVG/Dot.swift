@@ -44,7 +44,7 @@ public protocol Dot {
 public class AssetBased: Dot {
     private var imageCache: [String: UIImage] = [:]
     
-    public let styleWebpNamesDict: [AssetBasedDotGroupingStyle: [String]]
+    public var styleWebpNamesDict: [AssetBasedDotGroupingStyle: [String]]
     
     public init(styleWebpNamesDict: [AssetBasedDotGroupingStyle : [String]]) {
         self.styleWebpNamesDict = styleWebpNamesDict
