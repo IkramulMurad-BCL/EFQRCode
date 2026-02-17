@@ -271,15 +271,35 @@ extension UIColor {
 }
 
 extension UIColor {
-    var isApproximatelyBlack: Bool {
-        var white: CGFloat = 0
-        getWhite(&white, alpha: nil)
-        return white < 0.1 // near black
+    private var rgb: (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat)? {
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+
+        guard getRed(&r, green: &g, blue: &b, alpha: &a) else { return nil }
+        return (r,g,b,a)
     }
-    
+
     var isApproximatelyWhite: Bool {
-        var white: CGFloat = 0
-        getWhite(&white, alpha: nil)
-        return white > 0.9 // near white
+        guard let c = rgb else { return false }
+
+        let closeToWhite = c.r > 0.92 && c.g > 0.92 && c.b > 0.92
+        let lowColorTint = abs(c.r - c.g) < 0.05 &&
+                           abs(c.r - c.b) < 0.05 &&
+                           abs(c.g - c.b) < 0.05
+
+        return closeToWhite && lowColorTint
+    }
+
+    var isApproximatelyBlack: Bool {
+        guard let c = rgb else { return false }
+
+        let closeToBlack = c.r < 0.12 && c.g < 0.12 && c.b < 0.12
+        let lowColorTint = abs(c.r - c.g) < 0.05 &&
+                           abs(c.r - c.b) < 0.05 &&
+                           abs(c.g - c.b) < 0.05
+
+        return closeToBlack && lowColorTint
     }
 }
