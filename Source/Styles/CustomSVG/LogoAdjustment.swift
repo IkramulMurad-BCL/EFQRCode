@@ -33,6 +33,10 @@ public class LogoAdjustment: Codable {
         self.margin = margin
     }
     
+    public func copy() -> LogoAdjustment {
+        return LogoAdjustment(style: style, position: position, size: size, margin: margin)
+    }
+    
     public func updateStyle(style: LogoStyle) {
         self.style = style
     }

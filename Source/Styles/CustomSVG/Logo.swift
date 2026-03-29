@@ -16,6 +16,7 @@ public enum LogoData {
 public protocol Logo {
     var adjustment: LogoAdjustment { get set }
     func asImage(size: CGSize) -> UIImage?
+    func copy() -> Logo
     
     func updateLogo(with data: LogoData)
     func updateAdjustment(adjustment: LogoAdjustment)
@@ -237,6 +238,13 @@ public class ImageLogo: Logo {
         imageMask?.asImage(size: size)
     }
     
+    public func copy() -> Logo {
+        return ImageLogo(
+            adjustment: adjustment.copy(),
+            imageMask: imageMask
+        )
+    }
+    
     public func updateAdjustment(adjustment: LogoAdjustment) {
         self.adjustment = adjustment
     }
@@ -393,6 +401,14 @@ public class TextLogo: Logo {
         }
     }
     
+    public func copy() -> Logo {
+        return TextLogo(
+            adjustment: adjustment.copy(),
+            content: content,
+            font: font,
+            visualFill: visualFill
+        )
+    }
     
     public func updateAdjustment(adjustment: LogoAdjustment) {
         self.adjustment = adjustment
