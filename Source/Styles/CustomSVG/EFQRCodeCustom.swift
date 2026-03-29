@@ -136,7 +136,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
 
             // 4️⃣ Draw scan assist frame (optional)
             if let scanAssistFramePath {
-                context.setStrokeColor(UIColor.red.cgColor)
+                let scanAssistFrameColor = UIColor(hex: "#717175")
+                context.setStrokeColor(scanAssistFrameColor.cgColor)
                 context.setLineWidth(scanAssistFramePath.lineWidth)
                 context.addPath(scanAssistFramePath.cgPath)
                 context.strokePath()
@@ -226,7 +227,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
 
                 // Scan assist
                 if let scanAssistFramePath {
-                    context.setStrokeColor(UIColor.red.cgColor)
+                    let scanAssistFrameColor = UIColor(hex: "#717175")
+                    context.setStrokeColor(scanAssistFrameColor.cgColor)
                     context.setLineWidth(scanAssistFramePath.lineWidth)
                     context.addPath(scanAssistFramePath.cgPath)
                     context.strokePath()
