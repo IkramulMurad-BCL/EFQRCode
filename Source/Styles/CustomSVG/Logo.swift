@@ -380,22 +380,18 @@ public class TextLogo: Logo {
             
             ctx.restoreGState()
             
-            guard let maskRef = mask else { return }
+            guard let mask else { return }
             
-            //
             // STEP 2 — Clip the context with text mask
-            //
             ctx.saveGState()
             
             // Flip vertical axis to correct upside-down
             ctx.translateBy(x: 0, y: size.height)
             ctx.scaleBy(x: 1.0, y: -1.0)
-            ctx.clip(to: CGRect(origin: .zero, size: size), mask: maskRef)
+            ctx.clip(to: CGRect(origin: .zero, size: size), mask: mask)
             
-            //
             // STEP 3 — Draw visual fill inside the text
-            //
-            fillImage.draw(in: CGRect(origin: .zero, size: size))
+            ctx.draw(fillImage.cgImage!, in: CGRect(origin: .zero, size: size))
             
             ctx.restoreGState()
         }
