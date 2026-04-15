@@ -227,7 +227,7 @@ public extension Logo {
 
 public class ImageLogo: Logo {
     public var adjustment: LogoAdjustment
-    var imageMask: ImageMask?
+    public var imageMask: ImageMask?
     
     public init(adjustment: LogoAdjustment, imageMask: ImageMask? = nil) {
         self.adjustment = adjustment
