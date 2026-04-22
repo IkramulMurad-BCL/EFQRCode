@@ -10,8 +10,8 @@ import SDWebImageWebPCoder
 
 public class Eye {
     public var needTranslucentWhiteBack = false
-    private let eyeImages: [UIImage?]
-    private let eyeWebpNames: [String?]
+    public let eyeImages: [UIImage?]
+    public let eyeWebpNames: [String?]
     
     /// Initialize with a single UIImage (used for all positions)
     public init(image: UIImage) {

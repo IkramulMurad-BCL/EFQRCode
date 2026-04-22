@@ -42,7 +42,7 @@ public protocol Dot {
 }
 
 public class AssetBased: Dot {
-    private var imageCache: [String: UIImage] = [:]
+    public var imageCache: [String: UIImage] = [:]
     
     public var styleWebpNamesDict: [AssetBasedDotGroupingStyle: [String]]
     
@@ -693,5 +693,37 @@ public struct AssetLessBlackWhiteAll: Dot {
         }
         
         ctx.fill(drawRect)
+    }
+}
+
+extension AssetLess: Codable {
+    enum CodingKeys: String, CodingKey { case groupingLogic, lineCap, unitSize }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        groupingLogic = try c.decode(AssetLessDotGroupingStyle.self, forKey: .groupingLogic)
+        lineCap = try c.decode(AssetLessDotLineCap.self, forKey: .lineCap)
+        unitSize = try c.decode(CGSize.self, forKey: .unitSize)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(groupingLogic, forKey: .groupingLogic)
+        try c.encode(lineCap, forKey: .lineCap)
+        try c.encode(unitSize, forKey: .unitSize)
+    }
+}
+
+extension AssetLessBlackWhiteAll: Codable {
+    enum CodingKeys: String, CodingKey { case unitSize }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        unitSize = try c.decode(CGSize.self, forKey: .unitSize)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(unitSize, forKey: .unitSize)
     }
 }

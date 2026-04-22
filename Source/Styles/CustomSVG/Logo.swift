@@ -265,9 +265,9 @@ public class ImageLogo: Logo {
 public class TextLogo: Logo {
     public var adjustment: LogoAdjustment
     
-    var content: String
-    var font: UIFont
-    var visualFill: VisualFill
+    public var content: String
+    public var font: UIFont
+    public var visualFill: VisualFill
     
     public init(adjustment: LogoAdjustment, content: String, font: UIFont, visualFill: VisualFill) {
         self.adjustment = adjustment
