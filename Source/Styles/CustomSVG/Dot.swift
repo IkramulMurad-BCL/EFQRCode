@@ -121,7 +121,7 @@ public class AssetBased: Dot {
         let quietZonePixel = context.quietZonePixel
         let scale = context.scale
         
-        for style in AssetBasedDotGroupingStyle.allCases {
+        for style in [AssetBasedDotGroupingStyle.twoByTwo, AssetBasedDotGroupingStyle.oneByOne] {
             let (w, h) = style.size
             if x > nCount - w || y > nCount - h { continue }
             
