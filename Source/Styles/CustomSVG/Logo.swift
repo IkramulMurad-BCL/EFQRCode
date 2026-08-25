@@ -235,7 +235,8 @@ public class ImageLogo: Logo {
     }
     
     public func asImage(size: CGSize) -> UIImage? {
-        imageMask?.asImage(size: size)
+        // The slot is square; a gallery picture rarely is, so fit it instead of stretching it.
+        imageMask?.asImage(size: size, scale: 1, mode: .scaleAspectFit)
     }
     
     public func copy() -> Logo {

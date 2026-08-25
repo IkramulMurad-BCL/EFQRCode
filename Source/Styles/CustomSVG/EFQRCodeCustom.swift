@@ -79,8 +79,10 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let (logoPath, logoHolderPath, scanAssistFramePath) = params.logo.logoPath(using: &logoRect, logoRectWithMargin: &logoRectWithMargin, size: size, scale: scale, quietZonePixel: quietZonePixel)
         let logoImage = params.logo.asImage(size: CGSize(width: 100, height: 100))
         
-        let backgroundImage = params.background.asImage(size: size, scale: scale)
-        let foregroundImage = params.foreground.asImage(size: size, scale: scale)
+        // The canvas is square and gallery pictures are not, so image fills are centre-cropped
+        // instead of stretched. Fitting them would leave bands the dots cannot paint into.
+        let backgroundImage = params.background.asImage(size: size, scale: scale, mode: .scaleAspectFill)
+        let foregroundImage = params.foreground.asImage(size: size, scale: scale, mode: .scaleAspectFill)
         
         var maskedForeground: UIImage? = nil
         if let fg = foregroundImage {
@@ -209,7 +211,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         var frames: [UIImage] = []
 
         for i in 0..<animatedBG.frames.count {
-            let bgFrame = animatedBG.frame(at: i, size: size, scale: scale)
+            let bgFrame = animatedBG.frame(at: i, size: size, scale: scale, mode: .scaleAspectFill)
 
             let frame = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
                 let context = ctx.cgContext

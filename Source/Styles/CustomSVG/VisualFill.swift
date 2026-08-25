@@ -28,8 +28,48 @@ public enum GradientDirection: String, CaseIterable, Codable {
 }
 
 
+/// How a source image maps onto the box it is asked for. Gallery pictures are rarely square while
+/// the QR canvas and the logo slot both are, so filling the box stretches them out of shape.
+public enum ImageContentMode {
+    case scaleToFill
+    case scaleAspectFit
+    case scaleAspectFill
+}
+
+extension UIImage {
+    /// Aspect-fill overflows the box on one axis; the renderer's own bounds clip it.
+    func draw(in rect: CGRect, mode: ImageContentMode) {
+        guard size.width > 0, size.height > 0 else { return draw(in: rect) }
+
+        let factor: CGFloat
+        switch mode {
+        case .scaleToFill:
+            return draw(in: rect)
+        case .scaleAspectFit:
+            factor = min(rect.width / size.width, rect.height / size.height)
+        case .scaleAspectFill:
+            factor = max(rect.width / size.width, rect.height / size.height)
+        }
+
+        let scaled = CGSize(width: size.width * factor, height: size.height * factor)
+        draw(in: CGRect(x: rect.midX - scaled.width / 2,
+                        y: rect.midY - scaled.height / 2,
+                        width: scaled.width,
+                        height: scaled.height))
+    }
+}
+
 public protocol VisualFill {
     func asImage(size: CGSize, scale: CGFloat) -> UIImage?
+    func asImage(size: CGSize, scale: CGFloat, mode: ImageContentMode) -> UIImage?
+}
+
+public extension VisualFill {
+    /// Colours and gradients cover any box exactly, so the mode only matters to the image fills
+    /// that override this.
+    func asImage(size: CGSize, scale: CGFloat, mode: ImageContentMode) -> UIImage? {
+        asImage(size: size, scale: scale)
+    }
 }
 
 public class SolidColor: VisualFill {
@@ -90,12 +130,16 @@ public class ImageMask: VisualFill {
     }
     
     public func asImage(size: CGSize, scale: CGFloat = 1.0) -> UIImage? {
+        asImage(size: size, scale: scale, mode: .scaleToFill)
+    }
+    
+    public func asImage(size: CGSize, scale: CGFloat, mode: ImageContentMode) -> UIImage? {
         let format = UIGraphicsImageRendererFormat()
         format.scale = scale
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
         
         return renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: size))
+            image.draw(in: CGRect(origin: .zero, size: size), mode: mode)
         }
     }
 }
@@ -106,12 +150,12 @@ public class AnimatedImage: VisualFill {
 
     public var frameCount: Int { frames.count }
 
-    public func frame(at index: Int, size: CGSize, scale: CGFloat) -> UIImage {
+    public func frame(at index: Int, size: CGSize, scale: CGFloat, mode: ImageContentMode = .scaleToFill) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = scale
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
         return renderer.image { _ in
-            frames[index].draw(in: CGRect(origin: .zero, size: size))
+            frames[index].draw(in: CGRect(origin: .zero, size: size), mode: mode)
         }
     }
 
@@ -146,12 +190,16 @@ public class AnimatedImage: VisualFill {
     }
 
     public func asImage(size: CGSize, scale: CGFloat = 1.0) -> UIImage? {
+        asImage(size: size, scale: scale, mode: .scaleToFill)
+    }
+
+    public func asImage(size: CGSize, scale: CGFloat, mode: ImageContentMode) -> UIImage? {
         let resizedFrames = frames.map { frame in
             let format = UIGraphicsImageRendererFormat()
             format.scale = scale
             let renderer = UIGraphicsImageRenderer(size: size, format: format)
             return renderer.image { _ in
-                frame.draw(in: CGRect(origin: .zero, size: size))
+                frame.draw(in: CGRect(origin: .zero, size: size), mode: mode)
             }
         }
 
