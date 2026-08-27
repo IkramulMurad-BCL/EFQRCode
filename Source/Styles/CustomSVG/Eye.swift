@@ -95,12 +95,30 @@ public class Eye {
         
         if let img = eyeImages[index] { return img }
         
-        if let webp = eyeWebpNames[index], !webp.isEmpty,
-           let webpUrl = Bundle.main.url(forResource: webp, withExtension: "webp"),
-           let data = NSData(contentsOf: webpUrl),
-           let decoded = SDImageWebPCoder.shared.decodedImage(with: data as Data?) {
-            return decoded
+        guard let webp = eyeWebpNames[index], !webp.isEmpty else { return nil }
+        return Eye.decodedWebp(named: webp)
+    }
+    
+    /// The three eyes almost always share one asset, and every restyle redraws all three. Reading
+    /// and decoding the file each time put disk I/O and a WebP decode on the render path.
+    private static var webpCache: [String: UIImage] = [:]
+    private static let webpCacheLock = NSLock()
+    
+    private static func decodedWebp(named name: String) -> UIImage? {
+        webpCacheLock.lock()
+        defer { webpCacheLock.unlock() }
+        
+        if let cached = webpCache[name] { return cached }
+        
+        guard
+            let url = Bundle.main.url(forResource: name, withExtension: "webp"),
+            let data = NSData(contentsOf: url),
+            let decoded = SDImageWebPCoder.shared.decodedImage(with: data as Data?)
+        else {
+            return nil
         }
-        return nil
+        
+        webpCache[name] = decoded
+        return decoded
     }
 }
