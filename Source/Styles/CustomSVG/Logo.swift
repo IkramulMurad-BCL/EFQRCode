@@ -15,7 +15,7 @@ public enum LogoData {
 
 public protocol Logo {
     var adjustment: LogoAdjustment { get set }
-    func asImage(size: CGSize) -> UIImage?
+    func asImage(size: CGSize, scale: CGFloat) -> UIImage?
     func copy() -> Logo
     
     func updateLogo(with data: LogoData)
@@ -26,6 +26,10 @@ public protocol Logo {
 }
 
 public extension Logo {
+    func asImage(size: CGSize) -> UIImage? {
+        asImage(size: size, scale: 1)
+    }
+    
     func logoRect(using size: CGSize, scale: CGFloat = 1.0, quietZonePixel: CGFloat) -> (CGRect, CGRect) {
         let sizeFactor = adjustment.size
         let marginFactor = adjustment.margin
@@ -234,9 +238,9 @@ public class ImageLogo: Logo {
         self.imageMask = imageMask
     }
     
-    public func asImage(size: CGSize) -> UIImage? {
+    public func asImage(size: CGSize, scale: CGFloat) -> UIImage? {
         // The slot is square; a gallery picture rarely is, so fit it instead of stretching it.
-        imageMask?.asImage(size: size, scale: 1, mode: .scaleAspectFit)
+        imageMask?.asImage(size: size, scale: scale, mode: .scaleAspectFit)
     }
     
     public func copy() -> Logo {
@@ -324,9 +328,9 @@ public class TextLogo: Logo {
     }
     
     
-    public func asImage(size: CGSize) -> UIImage? {
+    public func asImage(size: CGSize, scale: CGFloat) -> UIImage? {
         // 1️⃣ Create visual fill image (full size)
-        guard let fillImage = visualFill.asImage(size: size, scale: 1) else { return nil }
+        guard let fillImage = visualFill.asImage(size: size, scale: scale) else { return nil }
         
         // 2️⃣ Calculate max font size to fit text inside `size`
         let maxFontSize: CGFloat = calculateMaxFontSizeToFit(
@@ -336,7 +340,9 @@ public class TextLogo: Logo {
             fontDescriptor: font.fontDescriptor
         )
         
-        let renderer = UIGraphicsImageRenderer(size: size)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
         
         return renderer.image { context in
             let ctx = context.cgContext

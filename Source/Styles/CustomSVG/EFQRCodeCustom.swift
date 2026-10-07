@@ -77,7 +77,11 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         // Step 0.1
         var (logoRect, logoRectWithMargin) = params.logo.logoRect(using: size, scale: scale, quietZonePixel: quietZonePixel)
         let (logoPath, logoHolderPath, scanAssistFramePath) = params.logo.logoPath(using: &logoRect, logoRectWithMargin: &logoRectWithMargin, size: size, scale: scale, quietZonePixel: quietZonePixel)
-        let logoImage = params.logo.asImage(size: CGSize(width: 100, height: 100))
+        // The logo is laid out in a fixed 100pt box so text wraps the same at every canvas size;
+        // the pixel density is what follows the slot, otherwise it is upscaled and turns soft.
+        let logoBoxSide: CGFloat = 100
+        let logoScale = max(1, logoRect.width * scale / logoBoxSide)
+        let logoImage = params.logo.asImage(size: CGSize(width: logoBoxSide, height: logoBoxSide), scale: logoScale)
         
         // The canvas is square and gallery pictures are not, so image fills are centre-cropped
         // instead of stretched. Fitting them would leave bands the dots cannot paint into.
