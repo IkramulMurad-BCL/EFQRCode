@@ -117,6 +117,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                                                  qrImageRaw: qrImageRaw,
                                                  maskedForeground: maskedForeground,
                                                  updatedMaskedForeground: updatedMaskedForeground,
+                                                 logo: params.logo,
                                                  logoImage: logoImage,
                                                  logoPath: logoPath,
                                                  logoRect: logoRect,
@@ -150,10 +151,10 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
             }
 
             // 5️⃣ Draw logo
-            if logoImage != nil {
+            if let logoImage {
                 context.saveGState()
                 logoPath.addClip()
-                logoImage?.draw(in: logoRect)
+                drawLogo(params.logo, rasterized: logoImage, in: logoRect, context: context)
                 context.restoreGState()
             }
         }
@@ -185,6 +186,17 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         return UIImage(cgImage: cgImage, scale: qrImage.scale, orientation: .up)
     }
     
+    /// A picture logo is drawn from its source straight into the slot: going through the
+    /// rasterized copy resamples it twice, and each pass softens it.
+    private func drawLogo(_ logo: Logo, rasterized: UIImage, in rect: CGRect, context: CGContext) {
+        context.interpolationQuality = .high
+        if let source = (logo as? ImageLogo)?.imageMask?.image {
+            source.draw(in: rect, mode: .scaleAspectFit)
+        } else {
+            rasterized.draw(in: rect)
+        }
+    }
+    
     func isFreshQR(foreground: VisualFill, background: VisualFill) -> Bool {
         guard
             let fg = (foreground as? SolidColor)?.color,
@@ -201,6 +213,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         qrImageRaw: UIImage,
         maskedForeground: UIImage?,
         updatedMaskedForeground: UIImage?,
+        logo: Logo,
         logoImage: UIImage?,
         logoPath: UIBezierPath,
         logoRect: CGRect,
@@ -244,7 +257,7 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 if let logoImage {
                     context.saveGState()
                     logoPath.addClip()
-                    logoImage.draw(in: logoRect)
+                    drawLogo(logo, rasterized: logoImage, in: logoRect, context: context)
                     context.restoreGState()
                 }
             }
