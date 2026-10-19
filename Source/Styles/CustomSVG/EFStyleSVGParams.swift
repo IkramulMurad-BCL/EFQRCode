@@ -10,11 +10,15 @@ import CoreGraphics
 public class EFStyleSVGParams: EFStyleParams {
     public static let defaultBackdrop: EFStyleParamBackdrop = EFStyleParamBackdrop()
     
+    /// Bumped whenever the dot, eye or a fill is set, so a renderer can keep what it drew for them
+    /// across logo edits. Mutating one of those objects in place must be followed by setting it again.
+    public private(set) var styleRevision = 0
+    
     // SVG customization options
-    public var dot: Dot
-    public var eye: Eye
-    public var foreground: VisualFill
-    public var background: VisualFill
+    public var dot: Dot { didSet { styleRevision &+= 1 } }
+    public var eye: Eye { didSet { styleRevision &+= 1 } }
+    public var foreground: VisualFill { didSet { styleRevision &+= 1 } }
+    public var background: VisualFill { didSet { styleRevision &+= 1 } }
     public var logo: Logo
     
     public func setForeground(_ visualFill: VisualFill) {
@@ -39,6 +43,7 @@ public class EFStyleSVGParams: EFStyleParams {
     
     public func setEyesTranslucentWhiteBack(_ needBack: Bool) {
         self.eye.needTranslucentWhiteBack = needBack
+        styleRevision &+= 1 // Eye is a class, so `eye`'s didSet doesn't see this
     }
     
     public init(

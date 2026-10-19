@@ -23,6 +23,24 @@ public struct QRRenderContext {
 }
 
 public class EFQRCodeCustomGenerator: EFQRCode.Generator {
+    /// Everything drawn before the logo. None of it depends on the logo, so a logo-only edit reuses it.
+    private struct StyleLayers {
+        let params: EFStyleSVGParams // held so its identity can't pass to a new object
+        let styleRevision: Int
+        let width: CGFloat
+        
+        let size: CGSize
+        let scale: CGFloat
+        let quietZonePixel: CGFloat
+        let qrImageRaw: UIImage
+        let maskedForeground: UIImage?
+        let backgroundImage: UIImage?
+    }
+    
+    // One entry per width: the editor alternates drag renders with a sharper one once edits settle.
+    private var styleLayersCache: [StyleLayers] = []
+    private let styleLayersLock = NSLock()
+    
     public init(content: String, style: EFQRCodeStyle) throws {
         guard let data = content.data(using: .utf8) else {
             throw EFQRCodeError.text(content, incompatibleWithEncoding: .utf8)
@@ -31,48 +49,21 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
     }
     
     public override func toImage(width: CGFloat, insets: UIEdgeInsets = .zero) throws -> UIImage {
-        let qrImageEmpty = try super.toImage(width: width)
-        
         guard let style = self.style as? EFQRCodeStyleSVG else {
             throw EFQRCodeError.cannotCreateUIImage
         }
         let params = style.params
-    
-        let size = qrImageEmpty.size
-        let scale = qrImageEmpty.scale
         
-        let moduleCount = CGFloat(qrcode.model.moduleCount)
-        let quietzone = params.backdrop.quietzone ?? EFEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
-        let quietZonePixel = (width / (moduleCount + quietzone.left + quietzone.right)) * quietzone.left
-        let width = size.width * scale
-        let moduleSize = (width - quietZonePixel * 2) / moduleCount
+        let layers = try styleLayers(width: width, params: params)
+        let size = layers.size
+        let scale = layers.scale
+        let quietZonePixel = layers.quietZonePixel
+        let qrImageRaw = layers.qrImageRaw
+        let maskedForeground = layers.maskedForeground
+        let backgroundImage = layers.backgroundImage
         
-        //*******************************************************************//
         let format = UIGraphicsImageRendererFormat()
         format.scale = scale
-        
-        // Step 0: Generate raw QR image (white canvas + eyes + dots)
-        let qrImageRaw = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
-            let context = ctx.cgContext
-            if !(params.dot is AssetLessBlackWhiteAll) {
-                    context.setFillColor(UIColor.white.cgColor)
-                    context.fill(CGRect(origin: .zero, size: size))
-                }
-            
-            let renderContext = QRRenderContext(
-                context: context,
-                size: size,
-                scale: scale,
-                moduleCount: CGFloat(qrcode.model.moduleCount),
-                moduleSize: moduleSize,
-                quietZonePixel: quietZonePixel,
-                qrImage: qrImageEmpty,
-                qrcode: qrcode
-            )
-            
-            params.eye.draw(in: renderContext)
-            params.dot.draw(in: renderContext)
-        }
         
         // Step 0.1
         var (logoRect, logoRectWithMargin) = params.logo.logoRect(using: size, scale: scale, quietZonePixel: quietZonePixel)
@@ -82,24 +73,6 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let logoBoxSide: CGFloat = 100
         let logoScale = max(1, logoRect.width * scale / logoBoxSide)
         let logoImage = params.logo.asImage(size: CGSize(width: logoBoxSide, height: logoBoxSide), scale: logoScale)
-        
-        // The canvas is square and gallery pictures are not, so image fills are centre-cropped
-        // instead of stretched. Fitting them would leave bands the dots cannot paint into.
-        let backgroundImage = params.background.asImage(size: size, scale: scale, mode: .scaleAspectFill)
-        let foregroundImage = params.foreground.asImage(size: size, scale: scale, mode: .scaleAspectFill)
-        
-        var maskedForeground: UIImage? = nil
-        if let fg = foregroundImage {
-            let freshQR = isFreshQR(foreground: params.foreground, background: params.background) || params.dot is AssetLessBlackWhiteAll
-            if freshQR {
-                maskedForeground = qrImageRaw
-            } else {
-                maskedForeground = applyMask(qrImage: qrImageRaw, maskImage: fg, isForeGround: true)
-                if maskedForeground == nil {
-                    throw EFQRCodeError.cannotCreateUIImage
-                }
-            }
-        }
         
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         maskedForeground?.draw(in: CGRect(origin: .zero, size: size))
@@ -160,6 +133,101 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         }
         
         return finalQRImage
+    }
+    
+    private func styleLayers(width: CGFloat, params: EFStyleSVGParams) throws -> StyleLayers {
+        // Read before drawing: an edit landing mid-draw bumps it, so this entry never serves that edit.
+        let styleRevision = params.styleRevision
+        let requestedWidth = width // shadowed by the pixel width below
+        
+        styleLayersLock.lock()
+        let cached = styleLayersCache.first {
+            $0.params === params && $0.styleRevision == styleRevision && $0.width == requestedWidth
+        }
+        styleLayersLock.unlock()
+        if let cached {
+            return cached
+        }
+        
+        let qrImageEmpty = try super.toImage(width: width)
+        
+        let size = qrImageEmpty.size
+        let scale = qrImageEmpty.scale
+        
+        let moduleCount = CGFloat(qrcode.model.moduleCount)
+        let quietzone = params.backdrop.quietzone ?? EFEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
+        let quietZonePixel = (width / (moduleCount + quietzone.left + quietzone.right)) * quietzone.left
+        let width = size.width * scale
+        let moduleSize = (width - quietZonePixel * 2) / moduleCount
+        
+        //*******************************************************************//
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        
+        // Step 0: Generate raw QR image (white canvas + eyes + dots)
+        let qrImageRaw = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+            let context = ctx.cgContext
+            if !(params.dot is AssetLessBlackWhiteAll) {
+                    context.setFillColor(UIColor.white.cgColor)
+                    context.fill(CGRect(origin: .zero, size: size))
+                }
+            
+            let renderContext = QRRenderContext(
+                context: context,
+                size: size,
+                scale: scale,
+                moduleCount: CGFloat(qrcode.model.moduleCount),
+                moduleSize: moduleSize,
+                quietZonePixel: quietZonePixel,
+                qrImage: qrImageEmpty,
+                qrcode: qrcode
+            )
+            
+            params.eye.draw(in: renderContext)
+            params.dot.draw(in: renderContext)
+        }
+        
+        // The canvas is square and gallery pictures are not, so image fills are centre-cropped
+        // instead of stretched. Fitting them would leave bands the dots cannot paint into.
+        let backgroundImage = params.background.asImage(size: size, scale: scale, mode: .scaleAspectFill)
+        let foregroundImage = params.foreground.asImage(size: size, scale: scale, mode: .scaleAspectFill)
+        
+        var maskedForeground: UIImage? = nil
+        if let fg = foregroundImage {
+            let freshQR = isFreshQR(foreground: params.foreground, background: params.background) || params.dot is AssetLessBlackWhiteAll
+            if freshQR {
+                maskedForeground = qrImageRaw
+            } else {
+                maskedForeground = applyMask(qrImage: qrImageRaw, maskImage: fg, isForeGround: true)
+                if maskedForeground == nil {
+                    throw EFQRCodeError.cannotCreateUIImage
+                }
+            }
+        }
+        
+        let layers = StyleLayers(
+            params: params,
+            styleRevision: styleRevision,
+            width: requestedWidth,
+            size: size,
+            scale: scale,
+            quietZonePixel: quietZonePixel,
+            qrImageRaw: qrImageRaw,
+            maskedForeground: maskedForeground,
+            backgroundImage: backgroundImage
+        )
+        
+        styleLayersLock.lock()
+        styleLayersCache.removeAll {
+            $0.width == requestedWidth || $0.params !== params || $0.styleRevision != styleRevision
+        }
+        styleLayersCache.append(layers)
+        if styleLayersCache.count > 2 {
+            styleLayersCache.removeFirst()
+        }
+        styleLayersLock.unlock()
+        
+        return layers
     }
 
     func applyMask(qrImage: UIImage, maskImage: UIImage, isForeGround: Bool = true) -> UIImage? {
