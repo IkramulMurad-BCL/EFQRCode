@@ -47,14 +47,7 @@ public class Eye {
     
     
     func draw(in ctx: QRRenderContext) {
-        let eyeSize = ctx.moduleSize * 7
         let eyeBGSize = ctx.moduleSize * 8
-        
-        let positions = [
-            CGPoint(x: ctx.quietZonePixel, y: ctx.quietZonePixel),
-            CGPoint(x: ctx.size.width - ctx.quietZonePixel - eyeSize, y: ctx.quietZonePixel),
-            CGPoint(x: ctx.quietZonePixel, y: ctx.size.height - ctx.quietZonePixel - eyeSize)
-        ]
         
         let bgPositions = [
             CGPoint(x: ctx.quietZonePixel, y: ctx.quietZonePixel),
@@ -75,18 +68,30 @@ public class Eye {
                 ctx.context.fill(bgRect)
             }
             
+            let rect = eyeRect(at: i, in: ctx)
+            if eyeImages[i] == nil, let name = eyeWebpNames[i], ctx.tints?.add(twinOf: name, in: rect) == true { continue }
             guard let image = loadImage(at: i) else { continue }
             
-            let pos = positions[i]
-            let drawRect = CGRect(
-                x: pos.x / ctx.scale,
-                y: pos.y / ctx.scale,
-                width: eyeSize / ctx.scale,
-                height: eyeSize / ctx.scale
-            )
-            
-            image.draw(in: drawRect)
+            image.draw(in: rect)
         }
+    }
+    
+    private func eyeRect(at index: Int, in ctx: QRRenderContext) -> CGRect {
+        let eyeSize = ctx.moduleSize * 7
+        
+        let positions = [
+            CGPoint(x: ctx.quietZonePixel, y: ctx.quietZonePixel),
+            CGPoint(x: ctx.size.width - ctx.quietZonePixel - eyeSize, y: ctx.quietZonePixel),
+            CGPoint(x: ctx.quietZonePixel, y: ctx.size.height - ctx.quietZonePixel - eyeSize)
+        ]
+        
+        let pos = positions[index]
+        return CGRect(
+            x: pos.x / ctx.scale,
+            y: pos.y / ctx.scale,
+            width: eyeSize / ctx.scale,
+            height: eyeSize / ctx.scale
+        )
     }
     
     /// Load image for position i (UIImage first, fallback to WebP)
