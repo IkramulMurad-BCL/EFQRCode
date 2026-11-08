@@ -162,7 +162,9 @@ public class AssetBased: Dot {
                 height: dotHeight / scale
             )
 
-            dotImage.draw(in: drawRect)
+            if context.tints?.add(twinOf: name, in: drawRect) != true {
+                dotImage.draw(in: drawRect)
+            }
             break
         }
     }

@@ -20,6 +20,7 @@ public struct QRRenderContext {
     
     let qrImage: UIImage
     let qrcode: QRCode
+    let tints: TintCollector?
 }
 
 public class EFQRCodeCustomGenerator: EFQRCode.Generator {
@@ -164,6 +165,10 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         let format = UIGraphicsImageRendererFormat()
         format.scale = scale
         
+        let freshQR = isFreshQR(foreground: params.foreground, background: params.background) || params.dot is AssetLessBlackWhiteAll
+        // Parts with a `_tint` twin skip the mask and are painted from the fill afterwards.
+        let tints = freshQR ? nil : TintCollector()
+        
         // Step 0: Generate raw QR image (white canvas + eyes + dots)
         let qrImageRaw = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
             let context = ctx.cgContext
@@ -180,7 +185,8 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
                 moduleSize: moduleSize,
                 quietZonePixel: quietZonePixel,
                 qrImage: qrImageEmpty,
-                qrcode: qrcode
+                qrcode: qrcode,
+                tints: tints
             )
             
             params.eye.draw(in: renderContext)
@@ -194,13 +200,15 @@ public class EFQRCodeCustomGenerator: EFQRCode.Generator {
         
         var maskedForeground: UIImage? = nil
         if let fg = foregroundImage {
-            let freshQR = isFreshQR(foreground: params.foreground, background: params.background) || params.dot is AssetLessBlackWhiteAll
             if freshQR {
                 maskedForeground = qrImageRaw
             } else {
                 maskedForeground = applyMask(qrImage: qrImageRaw, maskImage: fg, isForeGround: true)
                 if maskedForeground == nil {
                     throw EFQRCodeError.cannotCreateUIImage
+                }
+                if let tints, !tints.isEmpty, let masked = maskedForeground {
+                    maskedForeground = tints.paint(over: masked, fill: fg, size: size, format: format)
                 }
             }
         }
